@@ -87,9 +87,9 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 .planner-title{text-align:center;}
 .pt-month{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:white;}
 .pt-shared{font-size:0.7rem;opacity:0.85;margin-top:2px;}
-.month-strip{display:flex;overflow-x:auto;padding:8px 12px;gap:6px;background:white;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.month-strip{display:flex;overflow-x:auto;padding:8px 10px;gap:4px;background:white;border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .month-strip::-webkit-scrollbar{display:none;}
-.ms-item{flex-shrink:0;padding:5px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;cursor:pointer;color:var(--text-mid);background:var(--cream);transition:all 0.15s;}
+.ms-item{flex-shrink:0;padding:5px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;cursor:pointer;color:var(--text-mid);background:var(--cream);transition:all 0.15s;}
 .week-tabs{display:flex;overflow-x:auto;background:white;border-bottom:2px solid var(--border);scrollbar-width:none;}
 .week-tabs::-webkit-scrollbar{display:none;}
 .wt-item{flex:1;min-width:0;padding:8px 4px;text-align:center;font-size:0.7rem;font-weight:700;cursor:pointer;color:var(--text-mid);position:relative;white-space:nowrap;border-bottom:2.5px solid transparent;transition:all 0.15s;}
@@ -381,11 +381,11 @@ function renderPlanner(){
   const festsWeek=[];week.forEach(d=>{const k=dateKey(d);if(FESTIVALS[k])FESTIVALS[k].forEach(f=>festsWeek.push(f));});
   return`<div class="planner-screen">
   <div class="planner-topbar" style="background:${grad}">
-    <button class="icon-btn light" onclick="window._backToHome()">← Back</button>
+    <button class="icon-btn light" onclick="window._backToHome()" style="font-size:1.1rem;">🏠</button>
     <div class="planner-title"><div class="pt-month">${MONTHS[m]} 2026</div>${isRO?`<div class="pt-shared">👁️ Viewing shared plan</div>`:''}</div>
     ${!isRO?`<button class="icon-btn light" onclick="window._goTo('share')" style="font-size:0.85rem">📤</button>`:`<div style="width:48px"></div>`}
   </div>
-  <div class="month-strip">${MONTHS.map((mn,i)=>`<div class="ms-item ${i===m?'active':''}" onclick="window._changeMonth(${i})" style="${i===m?`background:${color};color:white`:''}">${mn.slice(0,3)}</div>`).join('')}</div>
+  <div class="month-strip" id="month-strip-scroll">${MONTHS.map((mn,i)=>`<div class="ms-item ${i===m?'active':''}" onclick="window._changeMonth(${i})" style="${i===m?`background:${color};color:white`:''}">${mn.slice(0,3)}</div>`).join('')}</div>
   <div class="week-tabs">${weeks.map((w,i)=>{const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`border-bottom:2.5px solid ${color};color:${color}`:''}">W${i+1}${hf?`<span class="wt-dot" style="background:${color}"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()}–${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;}).join('')}</div>
   ${festsWeek.length>0?`<div class="fest-banner" style="background:${grad}">${festsWeek.map(f=>`${f[0]} ${f[1]}`).join(' · ')}</div>`:''}
   <div class="day-cards">${week.map(d=>renderDayCard(d,y,m,color,isRO)).join('')}</div>
@@ -421,7 +421,11 @@ function renderDayCard(d,y,m,color,isRO){
   </div></div>`;
 }
 
-function attachPlannerEvents(){document.querySelectorAll('.dc-meal-input[contenteditable]').forEach(el=>{el.addEventListener('focus',()=>el.classList.add('focused'));el.addEventListener('blur',()=>el.classList.remove('focused'));});}
+function attachPlannerEvents(){
+  document.querySelectorAll('.dc-meal-input[contenteditable]').forEach(el=>{el.addEventListener('focus',()=>el.classList.add('focused'));el.addEventListener('blur',()=>el.classList.remove('focused'));});
+  const strip=document.getElementById('month-strip-scroll');
+  if(strip){const active=strip.querySelector('.ms-item.active');if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
+}
 
 window._mealBlur=async el=>{const[y,m,d,meal]=el.dataset.key.split('_');await saveMealEntry(+y,+m,+d,meal,el.innerText.trim());};
 window._saveNote=async(y,m,w,t,v)=>{await saveNote(y,m,w,t,v);};
