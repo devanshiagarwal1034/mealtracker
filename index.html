@@ -12,7 +12,7 @@
   --border:#EAE6F3; --shadow:0 2px 20px rgba(80,60,120,0.08); --radius:16px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);min-height:100vh;overflow-x:hidden;}
+html,body{font-family:'DM Sans',sans-serif;background:#F5F3FF;color:var(--text);min-height:100vh;overflow-x:hidden;}
 #app{min-height:100vh;}
 
 /* TYPOGRAPHY */
@@ -57,21 +57,28 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .auth-error{background:#FFF0EE;border:1px solid #F0A89A;color:#C0392B;padding:10px 12px;border-radius:8px;font-size:0.82rem;margin-bottom:14px;}
 
 /* HOME */
-.home-screen{min-height:100vh;display:flex;flex-direction:column;background:#F7F7FA;}
-.home-header{padding:20px 18px 16px;color:white;border-radius:0 0 28px 28px;}
-.home-header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
-.home-greeting{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;line-height:1.1;}
-.home-date{font-size:0.78rem;opacity:0.85;margin-top:3px;}
-.festival-chip{background:rgba(255,255,255,0.2);border-radius:20px;padding:6px 12px;font-size:0.78rem;font-weight:500;display:inline-block;}
-.home-body{flex:1;padding:18px 16px;padding-bottom:80px;}
-.section-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-light);margin-bottom:10px;}
-.month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.month-card{background:white;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 2px 12px rgba(13,13,40,0.08);transition:all 0.18s;}
-.month-card:active{transform:scale(0.95);}
-.mc-bar{height:6px;width:100%;}
-.mc-body{padding:10px 6px 12px;}
-.mc-name{font-size:0.78rem;font-weight:700;color:var(--text);letter-spacing:0.2px;}
-.mc-dot{width:5px;height:5px;border-radius:50%;margin:5px auto 0;}
+.home-screen{min-height:100vh;display:flex;flex-direction:column;background:#F5F3FF;}
+
+/* HEADER */
+.home-header{padding:0;color:white;position:relative;overflow:hidden;}
+.home-header-bg{padding:28px 20px 48px;position:relative;z-index:1;}
+.home-header-bg::before{content:'';position:absolute;top:-40px;right:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.1);}
+.home-header-bg::after{content:'';position:absolute;bottom:-20px;left:20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08);}
+.home-header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;position:relative;z-index:2;}
+.home-greeting{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;line-height:1.1;letter-spacing:-0.5px;}
+.home-date{font-size:0.78rem;opacity:0.8;margin-top:4px;font-weight:400;}
+.festival-chip{background:rgba(255,255,255,0.22);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.3);border-radius:24px;padding:8px 14px;font-size:0.78rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;position:relative;z-index:2;}
+
+/* MONTH GRID */
+.home-body{flex:1;padding:0 16px 80px;margin-top:-24px;position:relative;z-index:2;}
+.section-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#A99CBF;margin-bottom:12px;}
+.month-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.month-card{border-radius:20px;overflow:hidden;cursor:pointer;transition:all 0.2s;box-shadow:0 6px 20px rgba(100,60,180,0.18);background:transparent;display:flex;flex-direction:column;}
+.month-card:active{transform:scale(0.94);}
+.mc-inner{padding:16px 14px 16px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:90px;position:relative;overflow:hidden;width:100%;box-sizing:border-box;}
+.mc-inner::after{content:none;}
+.mc-name{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:white;letter-spacing:0.2px;position:relative;z-index:1;}
+.mc-festivals{font-size:0.62rem;color:rgba(255,255,255,0.85);font-weight:500;position:relative;z-index:1;line-height:1.3;}
 .shared-list{display:flex;flex-direction:column;gap:8px;}
 .shared-card{display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;}
 .shared-card:active{transform:scale(0.98);}
@@ -85,7 +92,7 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .share-btn-icon{width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
 
 /* PLANNER */
-.planner-screen{min-height:100vh;display:flex;flex-direction:column;background:#F7F7FA;}
+.planner-screen{min-height:100vh;display:flex;flex-direction:column;background:#F5F3FF;}
 .planner-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:white;transition:background 0.35s ease;}
 .planner-title{text-align:center;}
 .pt-month{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:white;}
@@ -127,7 +134,7 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .note-input:focus{border-color:#C9A0F0;background:white;}
 
 /* SHARE */
-.share-screen{min-height:100vh;display:flex;flex-direction:column;background:#F7F7FA;}
+.share-screen{min-height:100vh;display:flex;flex-direction:column;background:#F5F3FF;}
 .share-body{flex:1;padding:16px;padding-bottom:90px;display:flex;flex-direction:column;gap:16px;}
 .share-info-card{display:flex;gap:12px;background:white;border-radius:14px;padding:14px;box-shadow:var(--shadow);align-items:flex-start;}
 .sic-icon{width:40px;height:40px;border-radius:10px;background:#F3EAFF;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;color:#9B59D4;flex-shrink:0;}
@@ -155,7 +162,7 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .export-divider span{font-size:0.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;}
 
 /* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:100;box-shadow:0 -4px 20px rgba(13,13,40,0.06);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-top:1px solid rgba(180,160,220,0.2);display:flex;padding:8px 0 14px;z-index:100;box-shadow:0 -4px 24px rgba(100,60,180,0.08);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:0.4;transition:all 0.15s;}
 .nav-item.active{opacity:1;}
 .nav-item.active span:first-child{color:#B57BEA;}
@@ -169,7 +176,7 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .config-banner code{background:#FEF3C7;border-radius:4px;padding:1px 5px;font-size:0.75rem;}
 
 /* GUEST BANNER */
-.guest-banner{display:flex;align-items:center;gap:10px;background:#F9F0FF;border:1.5px dashed #C9A0F0;border-radius:12px;padding:11px 14px;margin-bottom:16px;}
+.guest-banner{display:flex;align-items:center;gap:10px;background:white;border:none;border-radius:16px;padding:14px 16px;margin-bottom:0px;box-shadow:0 2px 16px rgba(100,60,180,0.10);}
 .guest-banner-text{flex:1;}
 .guest-banner-title{font-size:0.82rem;font-weight:700;color:#9B59D4;}
 .guest-banner-sub{font-size:0.72rem;color:var(--text-mid);margin-top:2px;}
@@ -364,7 +371,7 @@ function renderCurrentView(){
 }
 
 // ── SPLASH ──
-function renderSplash(){return`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🪔</div><h1 class="logo-text">Annapurna</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your plan with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Get Started</button><p class="splash-note">Free · No ads · Private</p></div></div>`;}
+function renderSplash(){return`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🪔</div><h1 class="logo-text">Annapurna</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your tracker with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Get Started</button><p class="splash-note">Free · No ads · Private</p></div></div>`;}
 
 // ── AUTH ──
 function renderAuth(mode){return`<div class="auth-screen"><div class="auth-header"><div class="logo-icon small">🪔</div><h2 class="auth-title">Annapurna</h2></div><div class="auth-card">${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase Setup Required</strong>Open this file in a text editor and paste your Firebase config where it says <code>YOUR_API_KEY</code> etc. <a href="https://console.firebase.google.com" target="_blank" style="color:#1A6BA0">→ Get your config at Firebase Console</a></div>`:''}
@@ -433,26 +440,48 @@ async function renderHome(){
     headerRight=`<button class="icon-btn" onclick="window._signOut()" title="Sign out" style="background:rgba(255,255,255,0.2);color:white;font-size:0.75rem;font-weight:700;width:auto;padding:0 10px;">Sign Out</button>`;
   }
 
+  // Build per-month festival hints
+  const monthFests=MONTHS.map((_,mi)=>{
+    const fests=[];
+    for(let d=1;d<=31;d++){
+      const k=`2026-${String(mi+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if(FESTIVALS[k]) FESTIVALS[k].forEach(f=>fests.push(f));
+    }
+    return fests.slice(0,2);
+  });
+
   document.getElementById('app').innerHTML=`
   <div class="home-screen">
-    <div class="home-header" style="background:${grad}">
-      <div class="home-header-top">
-        <div><p class="home-greeting">Namaste, ${firstName} 🙏</p><p class="home-date">${today.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p></div>
-        ${headerRight}
+    <div class="home-header">
+      <div class="home-header-bg" style="background:${grad}">
+        <div class="home-header-top">
+          <div>
+            <p class="home-greeting">Namaste, ${firstName}</p>
+            <p class="home-date">${today.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p>
+          </div>
+          ${headerRight}
+        </div>
+        ${nextFest?`<div class="festival-chip">${nextFest.fests[0][0]} <span>${nextFest.daysAway===0?'Today':nextFest.daysAway===1?'Tomorrow':`In ${nextFest.daysAway} days`}: <strong>${nextFest.fests.map(f=>f[1]).join(' & ')}</strong></span></div>`:''}
       </div>
-      ${nextFest?`<div class="festival-chip">${nextFest.fests[0][0]} ${nextFest.daysAway===0?'Today: ':nextFest.daysAway===1?'Tomorrow: ':`In ${nextFest.daysAway} days: `}<strong>${nextFest.fests.map(f=>f[1]).join(' & ')}</strong></div>`:''}
     </div>
     <div class="home-body">
       ${guestBanner}
-      <div class="section-label" style="margin-bottom:10px">My Meal Plan — 2026</div>
-      <div class="month-grid">${MONTHS.map((m,i)=>`<div class="month-card" onclick="window._openMyPlanner(${i})"><div class="mc-bar" style="background:${MONTH_GRADS[i]}"></div><div class="mc-body"><div class="mc-name">${m.slice(0,3)}</div><div class="mc-dot" style="background:${MONTH_COLORS[i]}"></div></div></div>`).join('')}</div>
+      <div class="section-label" style="margin-bottom:12px;margin-top:28px;">My Meal Tracker — 2026</div>
+      <div class="month-grid">${MONTHS.map((mn,i)=>`
+        <div class="month-card" onclick="window._openMyPlanner(${i})">
+          <div class="mc-inner" style="background:${MONTH_GRADS[i]}">
+            <div class="mc-name">${mn}</div>
+            <div class="mc-festivals">${monthFests[i].length>0?monthFests[i].map(f=>f[0]+' '+f[1]).join(' · '):'&nbsp;'}</div>
+          </div>
+        </div>`).join('')}
+      </div>
       ${sharedSection}
-      <div class="section-label" style="margin-top:24px">Sharing</div>
-      <button class="share-btn" onclick="window._handleShareClick()"><span class="share-btn-icon">✦</span><span>Share My Plan with Someone</span></button>
+      <div class="section-label" style="margin-top:28px">Sharing</div>
+      <button class="share-btn" onclick="window._handleShareClick()"><span class="share-btn-icon">✦</span><span>Share My Tracker with Someone</span></button>
     </div>
     <div class="bottom-nav">
       <div class="nav-item active"><span>⌂</span><span>Home</span></div>
-      <div class="nav-item" onclick="window._openMyPlanner(${today.getMonth()})"><span>📆</span><span>Planner</span></div>
+      <div class="nav-item" onclick="window._openMyPlanner(${today.getMonth()})"><span>📆</span><span>Tracker</span></div>
       <div class="nav-item" onclick="window._handleShareClick()"><span>✦</span><span>Share</span></div>
     </div>
   </div>`;
@@ -478,11 +507,11 @@ function showSignupModal(trigger){
   overlay.id='signup-modal';
   overlay.innerHTML=`<div class="modal-sheet">
     <div class="modal-icon">${isShare?'✦':'🔐'}</div>
-    <div class="modal-title">${isShare?'Share Your Meal Plan':'Save Your Meal Plan'}</div>
-    <div class="modal-sub">${isShare?'Create a free account to share your plan with family and friends.':'You\'ve been building your plan! Create a free account so your data is saved forever — not just on this device.'}</div>
+    <div class="modal-title">${isShare?'Share Your Meal Tracker':'Save Your Meal Tracker'}</div>
+    <div class="modal-sub">${isShare?'Create a free account to share your tracker with family and friends.':'You\'ve been building your tracker! Create a free account so your data is saved forever — not just on this device.'}</div>
     <div class="modal-benefits">
       <div class="modal-benefit"><span>☁️</span> Your meals saved securely to the cloud</div>
-      <div class="modal-benefit"><span>✦</span> Share your plan with family</div>
+      <div class="modal-benefit"><span>✦</span> Share your tracker with family</div>
       <div class="modal-benefit"><span>📱</span> Access from any device</div>
       <div class="modal-benefit"><span>🆓</span> Completely free, no credit card</div>
     </div>
@@ -539,7 +568,7 @@ function renderPlanner(){
   <div style="height:80px"></div>
   <div class="bottom-nav">
     <div class="nav-item" onclick="window._backToHome()"><span>⌂</span><span>Home</span></div>
-    <div class="nav-item active"><span>📆</span><span>Planner</span></div>
+    <div class="nav-item active"><span>📆</span><span>Tracker</span></div>
     <div class="nav-item" onclick="window._goTo('share')"><span>✦</span><span>Share</span></div>
   </div></div>`;
 }
@@ -659,7 +688,7 @@ async function renderShareView(){
   document.getElementById('app').innerHTML=`<div class="share-screen">
   <div class="planner-topbar" style="background:linear-gradient(135deg,#B57BEA,#E8829A)">
     <button class="icon-btn light" onclick="window._backToHome()" style="font-size:1.3rem;font-weight:300;">⌂</button>
-    <div class="planner-title"><div class="pt-month">✦ Share My Plan</div></div>
+    <div class="planner-title"><div class="pt-month">✦ Share My Tracker</div></div>
     <div style="width:48px"></div>
   </div>
   <div class="share-body">
@@ -682,7 +711,7 @@ async function renderShareView(){
 
     <div class="export-divider"><span>or invite to app</span></div>
 
-    <div class="share-info-card"><div class="sic-icon">👤</div><div class="sic-text"><strong>Invite by Annapurna account</strong><p>They can view your live plan anytime — updates automatically.</p></div></div>
+    <div class="share-info-card"><div class="sic-icon">👤</div><div class="sic-text"><strong>Invite by Annapurna account</strong><p>They can view your live tracker anytime — updates automatically.</p></div></div>
     ${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase not configured</strong>Share feature requires Firebase setup.</div>`:''}
     <div class="form-group"><label>Invite by Email</label><div class="share-input-row"><input type="email" id="share-email" placeholder="friend@example.com"/><button class="btn-share-add" onclick="window._handleShareAdd()">Add</button></div><div id="share-msg" class="share-msg" style="display:none"></div></div>
     <div class="section-label">Currently Shared With</div>
@@ -690,7 +719,7 @@ async function renderShareView(){
   </div>
   <div class="bottom-nav">
     <div class="nav-item" onclick="window._backToHome()"><span>🏠</span><span>Home</span></div>
-    <div class="nav-item" onclick="window._openMyPlanner(${selectedMonth})"><span>📅</span><span>Planner</span></div>
+    <div class="nav-item" onclick="window._openMyPlanner(${selectedMonth})"><span>📅</span><span>Tracker</span></div>
     <div class="nav-item active"><span>✦</span><span>Share</span></div>
   </div></div>`;
 }
@@ -702,7 +731,7 @@ function buildTextPlan(){
   const y=2026,m=selectedMonth;
   const weeks=getWeeksInMonth(y,m),week=weeks[selectedWeek]||weeks[0];
   const color=MONTH_COLORS[m];
-  let lines=[`🪔 Annapurna Meal Plan — ${MONTHS[m]} 2026, Week ${selectedWeek+1}`,`${'─'.repeat(36)}`];
+  let lines=[`🪔 Annapurna Meal Tracker — ${MONTHS[m]} 2026, Week ${selectedWeek+1}`,`${'─'.repeat(36)}`];
   week.forEach(d=>{
     const day=d.getDate(),dk=dateKey(d),fests=FESTIVALS[dk];
     lines.push(`\n${DAYS_SHORT[d.getDay()]} ${day}${fests?' '+fests.map(f=>f[0]+' '+f[1]).join(', '):''}`);
@@ -728,7 +757,7 @@ window._copyTextPlan=async()=>{
 
 window._nativeShare=async()=>{
   const text=buildTextPlan();
-  try{await navigator.share({title:'My Annapurna Meal Plan 🪔',text});}
+  try{await navigator.share({title:'My Annapurna Meal Tracker 🪔',text});}
   catch(e){}
 };
 
@@ -841,7 +870,7 @@ window._handleShareAdd=async()=>{
   const ei=document.getElementById('share-email'),btn=document.querySelector('.btn-share-add'),msg=document.getElementById('share-msg');
   const email=ei.value.trim();if(!email)return;
   btn.disabled=true;btn.textContent='...';msg.style.display='none';
-  try{const name=await shareWithUser(email);msg.className='share-msg success';msg.textContent=`✅ ${name} can now view your meal plan!`;msg.style.display='block';ei.value='';setTimeout(()=>renderShareView(),1500);}
+  try{const name=await shareWithUser(email);msg.className='share-msg success';msg.textContent=`✅ ${name} can now view your meal tracker!`;msg.style.display='block';ei.value='';setTimeout(()=>renderShareView(),1500);}
   catch(e){msg.className='share-msg error';msg.textContent=`❌ ${e.message}`;msg.style.display='block';}
   btn.disabled=false;btn.textContent='Add';
 };
