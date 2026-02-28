@@ -90,15 +90,17 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .planner-title{text-align:center;}
 .pt-month{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:white;}
 .pt-shared{font-size:0.7rem;opacity:0.85;margin-top:2px;}
-.month-strip{display:flex;overflow-x:auto;padding:8px 10px;gap:4px;background:white;border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.month-strip{display:flex;overflow-x:auto;gap:8px;padding:10px 14px;background:white;border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .month-strip::-webkit-scrollbar{display:none;}
-.ms-item{flex-shrink:0;padding:5px 8px;border-radius:20px;font-size:0.68rem;font-weight:700;cursor:pointer;color:var(--text-mid);background:#F0EEF8;transition:all 0.15s;}
-.week-tabs{display:flex;overflow-x:auto;background:white;border-bottom:2px solid var(--border);scrollbar-width:none;}
+.ms-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;transition:all 0.18s;}
+.ms-pill{padding:7px 14px;border-radius:20px;background:#F0EEF8;font-size:0.72rem;font-weight:700;color:var(--text-mid);transition:all 0.18s;white-space:nowrap;}
+.ms-item.active .ms-pill{color:white;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
+.week-tabs{display:flex;overflow-x:auto;gap:8px;padding:10px 14px;background:white;border-bottom:1px solid var(--border);scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .week-tabs::-webkit-scrollbar{display:none;}
-.wt-item{flex:1;min-width:0;padding:8px 4px;text-align:center;font-size:0.7rem;font-weight:700;cursor:pointer;color:var(--text-mid);position:relative;white-space:nowrap;border-bottom:2.5px solid transparent;transition:all 0.15s;}
-.wt-item.active{color:#C2185B;}
-.wt-dates{display:block;font-size:0.58rem;font-weight:500;opacity:0.65;margin-top:1px;}
-.wt-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-left:2px;vertical-align:middle;}
+.wt-item{flex-shrink:0;padding:8px 14px;border-radius:20px;background:#F0EEF8;text-align:center;font-size:0.72rem;font-weight:700;cursor:pointer;color:var(--text-mid);white-space:nowrap;border:none;transition:all 0.18s;}
+.wt-item.active{color:white;}
+.wt-dates{display:block;font-size:0.62rem;font-weight:500;opacity:0.85;margin-top:2px;}
+.wt-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-left:3px;vertical-align:middle;background:currentColor;opacity:0.7;}
 .fest-banner{padding:8px 16px;color:white;font-size:0.78rem;font-weight:600;text-align:center;}
 .day-cards{display:flex;flex-direction:column;gap:10px;padding:12px;}
 .day-card{background:white;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
@@ -522,8 +524,8 @@ function renderPlanner(){
     <div class="planner-title"><div class="pt-month">${MONTHS[m]} 2026</div>${isRO?`<div class="pt-shared">👁️ Viewing shared plan</div>`:''}</div>
     ${!isRO?`<button class="icon-btn light" onclick="window._goTo('share')" style="font-size:1rem;font-weight:500;">✦</button>`:`<div style="width:48px"></div>`}
   </div>
-  <div class="month-strip" id="month-strip-scroll">${MONTHS.map((mn,i)=>`<div class="ms-item ${i===m?'active':''}" onclick="window._changeMonth(${i})" style="${i===m?`background:${color};color:white`:''}">${mn.slice(0,3)}</div>`).join('')}</div>
-  <div class="week-tabs">${weeks.map((w,i)=>{const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`border-bottom:2.5px solid ${color};color:${color}`:''}">W${i+1}${hf?`<span class="wt-dot" style="background:${color}"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()}–${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;}).join('')}</div>
+  <div class="month-strip" id="month-strip-scroll">${MONTHS.map((mn,i)=>`<div class="ms-item ${i===m?'active':''}" onclick="window._changeMonth(${i})"><div class="ms-pill" style="${i===m?`background:${MONTH_GRADS[i]};`:''}">${mn.slice(0,3)}</div></div>`).join('')}</div>
+  <div class="week-tabs">${weeks.map((w,i)=>{const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`background:${color};box-shadow:0 3px 10px ${color}44`:''}">W${i+1}${hf?`<span class="wt-dot"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()} – ${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;}).join('')}</div>
   ${festsWeek.length>0?`<div class="fest-banner" style="background:${grad}">${festsWeek.map(f=>`${f[0]} ${f[1]}`).join(' · ')}</div>`:''}
   <div class="day-cards">${week.map(d=>renderDayCard(d,y,m,color,isRO)).join('')}</div>
   <div class="notes-block">
@@ -562,6 +564,8 @@ function attachPlannerEvents(){
   document.querySelectorAll('.dc-meal-input[contenteditable]').forEach(el=>{el.addEventListener('focus',()=>el.classList.add('focused'));el.addEventListener('blur',()=>el.classList.remove('focused'));});
   const strip=document.getElementById('month-strip-scroll');
   if(strip){const active=strip.querySelector('.ms-item.active');if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
+  const wtabs=document.querySelector('.week-tabs');
+  if(wtabs){const active=wtabs.querySelector('.wt-item.active');if(active)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
 }
 
 window._mealBlur=async el=>{const[y,m,d,meal]=el.dataset.key.split('_');await saveMealEntry(+y,+m,+d,meal,el.innerText.trim());};
@@ -584,8 +588,12 @@ function updatePlannerInPlace(){
   if(strip){
     strip.querySelectorAll('.ms-item').forEach((el,i)=>{
       el.className=`ms-item${i===m?' active':''}`;
-      el.style.background=i===m?color:'';
-      el.style.color=i===m?'white':'';
+      const pill=el.querySelector('.ms-pill');
+      if(pill){
+        pill.style.background=i===m?MONTH_GRADS[i]:'';
+        pill.style.color=i===m?'white':'';
+        pill.style.boxShadow=i===m?`0 3px 10px ${MONTH_COLORS[i]}44`:'';
+      }
     });
     const active=strip.querySelector('.ms-item.active');
     if(active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
@@ -596,7 +604,7 @@ function updatePlannerInPlace(){
   if(weekTabsEl){
     weekTabsEl.innerHTML=weeks.map((w,i)=>{
       const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);
-      return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`border-bottom:2.5px solid ${color};color:${color}`:''}">W${i+1}${hf?`<span class="wt-dot" style="background:${color}"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()}–${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;
+      return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`background:${color};box-shadow:0 3px 10px ${color}44`:''}">W${i+1}${hf?`<span class="wt-dot"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()} – ${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;
     }).join('');
   }
 
