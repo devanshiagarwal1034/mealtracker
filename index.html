@@ -150,6 +150,28 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 .config-banner strong{display:block;margin-bottom:4px;color:#92400E;}
 .config-banner code{background:#FEF3C7;border-radius:4px;padding:1px 5px;font-size:0.75rem;}
 
+/* GUEST BANNER */
+.guest-banner{display:flex;align-items:center;gap:10px;background:#FFF8EE;border:1.5px dashed #E8621A;border-radius:12px;padding:11px 14px;margin-bottom:16px;}
+.guest-banner-text{flex:1;}
+.guest-banner-title{font-size:0.82rem;font-weight:700;color:#E8621A;}
+.guest-banner-sub{font-size:0.72rem;color:var(--text-mid);margin-top:2px;}
+.guest-banner-cta{font-size:0.75rem;font-weight:700;color:white;background:#E8621A;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+
+/* SIGNUP MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,15,0,0.55);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:white;border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:420px;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-icon{font-size:2.4rem;text-align:center;margin-bottom:8px;}
+.modal-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:#E8621A;text-align:center;margin-bottom:6px;}
+.modal-sub{font-size:0.85rem;color:var(--text-mid);text-align:center;line-height:1.5;margin-bottom:20px;}
+.modal-benefits{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
+.modal-benefit{display:flex;align-items:center;gap:10px;font-size:0.83rem;color:var(--text-mid);}
+.modal-benefit span:first-child{font-size:1.1rem;}
+.modal-actions{display:flex;flex-direction:column;gap:10px;}
+.btn-ghost{background:transparent;border:2px solid var(--border);border-radius:14px;padding:13px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.9rem;color:var(--text-mid);cursor:pointer;width:100%;}
+.modal-dismiss{text-align:center;margin-top:12px;font-size:0.75rem;color:var(--text-light);cursor:pointer;}
+
 @media(min-width:480px){
   #app{max-width:420px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,0.15);min-height:100vh;}
   .bottom-nav{max-width:420px;left:50%;transform:translateX(-50%);}
@@ -209,6 +231,15 @@ if(IS_CONFIGURED){
 
 let currentUser=null,currentView='splash',selectedMonth=new Date().getMonth(),selectedWeek=0;
 let plannerData={},planOwnerId=null,unsubscribePlanner=null;
+let isGuest=false; // guest mode flag
+
+// ── GUEST MODE HELPERS ──
+const GUEST_KEY='annapurna_guest_data';
+function guestGet(){try{return JSON.parse(localStorage.getItem(GUEST_KEY)||'{}');}catch{return{};}}
+function guestSet(data){try{localStorage.setItem(GUEST_KEY,JSON.stringify(data));}catch{}}
+function guestMealKey(y,m,d,meal){return `${y}_${m}_${d}_${meal}`;}
+function guestNoteKey(y,m,w,t){return `note_${y}_${m}_${w}_${t}`;}
+function countGuestMeals(){const d=guestGet();return Object.keys(d).filter(k=>!k.startsWith('note_')).filter(k=>d[k]&&d[k].trim()).length;}
 
 // ── HELPERS ──
 const dateKey=d=>d.toISOString().split('T')[0];
@@ -230,17 +261,37 @@ function getWeeksInMonth(year,month){
 
 function stringToColor(s){const h=s.split('').reduce((a,c)=>c.charCodeAt(0)+((a<<5)-a),0);return["#E8621A","#8E44AD","#27AE60","#1A6BA0","#BF360C","#D4890A"][Math.abs(h)%6];}
 
-function getMealValue(y,m,d,meal){return(plannerData[`${y}_${m}`]||{})[`${d}_${meal}`]||'';}
-function getNoteValue(y,m,w,t){return(plannerData[`${y}_${m}`]||{})[`note_${w}_${t}`]||'';}
+function getMealValue(y,m,d,meal){
+  if(isGuest){return guestGet()[guestMealKey(y,m,d,meal)]||'';}
+  return(plannerData[`${y}_${m}`]||{})[`${d}_${meal}`]||'';
+}
+function getNoteValue(y,m,w,t){
+  if(isGuest){return guestGet()[guestNoteKey(y,m,w,t)]||'';}
+  return(plannerData[`${y}_${m}`]||{})[`note_${w}_${t}`]||'';
+}
 
 // ── FIREBASE OPS ──
 async function saveMealEntry(y,m,d,meal,val){
+  if(isGuest){
+    const data=guestGet();
+    data[guestMealKey(y,m,d,meal)]=val;
+    guestSet(data);
+    // Show save nudge after 3 meals entered
+    if(countGuestMeals()===3) showSaveNudge();
+    return;
+  }
   if(!IS_CONFIGURED||planOwnerId||!currentUser)return;
   const ref=doc(db,'plans',`${currentUser.uid}_${y}_${m}`);
   await setDoc(ref,{[`${d}_${meal}`]:val,uid:currentUser.uid,year:y,month:m,updatedAt:serverTimestamp()},{merge:true});
 }
 
 async function saveNote(y,m,w,t,val){
+  if(isGuest){
+    const data=guestGet();
+    data[guestNoteKey(y,m,w,t)]=val;
+    guestSet(data);
+    return;
+  }
   if(!IS_CONFIGURED||planOwnerId||!currentUser)return;
   const ref=doc(db,'plans',`${currentUser.uid}_${y}_${m}`);
   await setDoc(ref,{[`note_${w}_${t}`]:val,uid:currentUser.uid},{merge:true});
@@ -305,7 +356,11 @@ ${mode==='signup'?`<div class="form-group"><label>Your Name</label><input type="
 <div class="form-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"/></div>
 <div class="form-group"><label>Password</label><input type="password" id="auth-password" placeholder="${mode==='signup'?'Min 6 characters':'Your password'}"/></div>
 <button class="btn-primary full-width" id="auth-submit" onclick="window._handleAuth('${mode}')">${mode==='login'?'Sign In':'Create Account'}</button>
-</div></div>`;}
+</div>
+<p style="text-align:center;margin-top:16px;font-size:0.78rem;color:var(--text-light);cursor:pointer;" onclick="window._continueAsGuest()">← Continue exploring without an account</p>
+</div>`;}
+
+window._continueAsGuest=()=>{isGuest=true;currentView='home';renderHome();};
 
 window._switchAuth=m=>{document.getElementById('app').innerHTML=renderAuth(m);};
 window._handleAuth=async mode=>{
@@ -335,39 +390,105 @@ window._handleAuth=async mode=>{
 
 // ── HOME ──
 async function renderHome(){
-  const profile=await loadUserProfile();
-  const name=currentUser?.displayName||'Friend';
-  const firstName=name.split(' ')[0];
-  const sharedToMe=profile.sharedToMe||[];
   const today=new Date();
   let nextFest=null;
   for(let i=0;i<60;i++){const d=new Date(today);d.setDate(d.getDate()+i);const k=dateKey(d);if(FESTIVALS[k]){nextFest={date:d,fests:FESTIVALS[k],daysAway:i};break;}}
   const grad=MONTH_GRADS[today.getMonth()];
+  let guestBanner='', sharedSection='', headerRight='', firstName='Friend';
+
+  if(isGuest){
+    const meals=countGuestMeals();
+    guestBanner=`<div class="guest-banner">
+      <div class="guest-banner-text">
+        <div class="guest-banner-title">👋 You're exploring as a Guest</div>
+        <div class="guest-banner-sub">${meals>0?`${meals} meal${meals===1?'':'s'} saved locally · `:''}Create a free account to save & share</div>
+      </div>
+      <button class="guest-banner-cta" onclick="window._showSignupModal('save')">Save Data</button>
+    </div>`;
+    headerRight=`<button class="icon-btn" onclick="window._showSignupModal('save')" style="background:rgba(255,255,255,0.2);color:white;font-size:0.75rem;font-weight:700;width:auto;padding:0 10px;">Sign In</button>`;
+  } else {
+    const profile=await loadUserProfile();
+    const name=currentUser?.displayName||'Friend';
+    firstName=name.split(' ')[0];
+    const sharedToMe=profile.sharedToMe||[];
+    sharedSection=sharedToMe.length>0?`<div class="section-label" style="margin-top:24px">Shared With Me</div><div class="shared-list">${sharedToMe.map(p=>`<div class="shared-card" onclick="window._viewSharedPlan('${p.uid}','${p.name||p.email}')"><div class="shared-avatar" style="background:${stringToColor(p.email)}">${(p.name||p.email)[0].toUpperCase()}</div><div class="shared-info"><div class="shared-name">${p.name||p.email}</div><div class="shared-email">${p.email}</div></div><div class="shared-arrow">👁️</div></div>`).join('')}</div>`:'';
+    headerRight=`<button class="icon-btn" onclick="window._signOut()" title="Sign out" style="background:rgba(255,255,255,0.2);color:white;font-size:0.75rem;font-weight:700;width:auto;padding:0 10px;">Sign Out</button>`;
+  }
+
   document.getElementById('app').innerHTML=`
   <div class="home-screen">
     <div class="home-header" style="background:${grad}">
       <div class="home-header-top">
         <div><p class="home-greeting">Namaste, ${firstName} 🙏</p><p class="home-date">${today.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p></div>
-        <button class="icon-btn" onclick="window._signOut()" title="Sign out" style="background:rgba(255,255,255,0.2);color:white;font-size:0.75rem;font-weight:700;width:auto;padding:0 10px;">Sign Out</button>
+        ${headerRight}
       </div>
       ${nextFest?`<div class="festival-chip">${nextFest.fests[0][0]} ${nextFest.daysAway===0?'Today: ':nextFest.daysAway===1?'Tomorrow: ':`In ${nextFest.daysAway} days: `}<strong>${nextFest.fests.map(f=>f[1]).join(' & ')}</strong></div>`:''}
     </div>
     <div class="home-body">
+      ${guestBanner}
       <div class="section-label" style="margin-bottom:10px">My Meal Plan — 2026</div>
       <div class="month-grid">${MONTHS.map((m,i)=>`<div class="month-card" onclick="window._openMyPlanner(${i})" style="--mc:${MONTH_COLORS[i]}"><div class="mc-name">${m.slice(0,3)}</div><div class="mc-dot" style="background:${MONTH_COLORS[i]}"></div></div>`).join('')}</div>
-      ${sharedToMe.length>0?`<div class="section-label" style="margin-top:24px">Shared With Me</div><div class="shared-list">${sharedToMe.map(p=>`<div class="shared-card" onclick="window._viewSharedPlan('${p.uid}','${p.name||p.email}')"><div class="shared-avatar" style="background:${stringToColor(p.email)}">${(p.name||p.email)[0].toUpperCase()}</div><div class="shared-info"><div class="shared-name">${p.name||p.email}</div><div class="shared-email">${p.email}</div></div><div class="shared-arrow">👁️</div></div>`).join('')}</div>`:''}
+      ${sharedSection}
       <div class="section-label" style="margin-top:24px">Sharing</div>
-      <button class="share-btn" onclick="window._goTo('share')"><span>📤</span> Share My Plan with Someone</button>
+      <button class="share-btn" onclick="window._handleShareClick()"><span>📤</span> Share My Plan with Someone</button>
     </div>
     <div class="bottom-nav">
       <div class="nav-item active"><span>🏠</span><span>Home</span></div>
       <div class="nav-item" onclick="window._openMyPlanner(${today.getMonth()})"><span>📅</span><span>Planner</span></div>
-      <div class="nav-item" onclick="window._goTo('share')"><span>📤</span><span>Share</span></div>
+      <div class="nav-item" onclick="window._handleShareClick()"><span>📤</span><span>Share</span></div>
     </div>
   </div>`;
 }
 
-window._openMyPlanner=m=>{planOwnerId=null;selectedMonth=m;selectedWeek=0;currentView='planner';subscribeToPlan(2026,m,currentUser.uid);renderCurrentView();};
+window._openMyPlanner=m=>{
+  planOwnerId=null;selectedMonth=m;selectedWeek=0;currentView='planner';
+  if(!isGuest) subscribeToPlan(2026,m,currentUser.uid);
+  renderCurrentView();
+};
+
+// ── SHARE GATE ──
+window._handleShareClick=()=>{
+  if(isGuest){showSignupModal('share');return;}
+  window._goTo('share');
+};
+
+// ── SIGNUP MODAL ──
+function showSignupModal(trigger){
+  const isShare=trigger==='share';
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='signup-modal';
+  overlay.innerHTML=`<div class="modal-sheet">
+    <div class="modal-icon">${isShare?'📤':'💾'}</div>
+    <div class="modal-title">${isShare?'Share Your Meal Plan':'Save Your Meal Plan'}</div>
+    <div class="modal-sub">${isShare?'Create a free account to share your plan with family and friends.':'You\'ve been building your plan! Create a free account so your data is saved forever — not just on this device.'}</div>
+    <div class="modal-benefits">
+      <div class="modal-benefit"><span>☁️</span> Your meals saved securely to the cloud</div>
+      <div class="modal-benefit"><span>📤</span> Share your plan with family</div>
+      <div class="modal-benefit"><span>📱</span> Access from any device</div>
+      <div class="modal-benefit"><span>🆓</span> Completely free, no credit card</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary full-width" onclick="window._modalGoAuth('signup')">Create Free Account →</button>
+      <button class="btn-ghost" onclick="window._modalGoAuth('login')">I already have an account</button>
+    </div>
+    <div class="modal-dismiss" onclick="document.getElementById('signup-modal').remove()">Maybe later — keep exploring</div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+}
+window._showSignupModal=showSignupModal;
+window._modalGoAuth=mode=>{
+  document.getElementById('signup-modal')?.remove();
+  currentView='auth';
+  document.getElementById('app').innerHTML=renderAuth(mode);
+};
+function showSaveNudge(){
+  // Only show once
+  if(sessionStorage.getItem('nudge_shown'))return;
+  sessionStorage.setItem('nudge_shown','1');
+  setTimeout(()=>showSignupModal('save'),800);
+}
 window._viewSharedPlan=(uid,name)=>{planOwnerId=uid;selectedMonth=new Date().getMonth();selectedWeek=0;currentView='shared-view';subscribeToPlan(2026,selectedMonth,uid);renderCurrentView();};
 window._signOut=async()=>{if(unsubscribePlanner)unsubscribePlanner();await signOut(auth);};
 window._goTo=v=>{currentView=v;renderCurrentView();};
@@ -470,12 +591,22 @@ window._removeShare=async(uid,email)=>{const c=document.getElementById(`sc_${uid
 if(IS_CONFIGURED){
   onAuthStateChanged(auth,user=>{
     currentUser=user;
-    if(user){currentView='home';renderHome();}
-    else{currentView='auth';document.getElementById('app').innerHTML=renderAuth('login');}
+    if(user){
+      isGuest=false;
+      currentView='home';
+      renderHome();
+    } else {
+      // No logged-in user → go straight to app as guest
+      isGuest=true;
+      currentView='home';
+      renderHome();
+    }
   });
 } else {
-  // Show splash then auth (with config warning)
-  document.getElementById('app').innerHTML=`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🍱</div><h1 class="logo-text">Annapurna</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your plan with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Setup & Get Started →</button><p class="splash-note">Requires Firebase configuration — takes 5 mins</p></div></div>`;
+  // Firebase not configured — still allow guest mode
+  isGuest=true;
+  currentView='home';
+  renderHome();
 }
 </script>
 </body>
