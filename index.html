@@ -260,7 +260,7 @@ function guestNoteKey(y,m,w,t){return `note_${y}_${m}_${w}_${t}`;}
 function countGuestMeals(){const d=guestGet();return Object.keys(d).filter(k=>!k.startsWith('note_')).filter(k=>d[k]&&d[k].trim()).length;}
 
 // ── HELPERS ──
-const dateKey=d=>d.toISOString().split('T')[0];
+const dateKey=d=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;};
 
 function getWeeksInMonth(year,month){
   const first=new Date(year,month,1),last=new Date(year,month+1,0);
