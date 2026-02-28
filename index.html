@@ -83,7 +83,7 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 
 /* PLANNER */
 .planner-screen{min-height:100vh;display:flex;flex-direction:column;background:var(--cream);}
-.planner-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:white;}
+.planner-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:white;transition:background 0.35s ease;}
 .planner-title{text-align:center;}
 .pt-month{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:white;}
 .pt-shared{font-size:0.7rem;opacity:0.85;margin-top:2px;}
@@ -550,8 +550,82 @@ function attachPlannerEvents(){
 
 window._mealBlur=async el=>{const[y,m,d,meal]=el.dataset.key.split('_');await saveMealEntry(+y,+m,+d,meal,el.innerText.trim());};
 window._saveNote=async(y,m,w,t,v)=>{await saveNote(y,m,w,t,v);};
-window._changeMonth=m=>{selectedMonth=m;selectedWeek=0;subscribeToPlan(2026,m,planOwnerId||currentUser.uid);renderCurrentView();};
-window._changeWeek=w=>{selectedWeek=w;renderCurrentView();};
+// ── SURGICAL PLANNER UPDATES (no full re-render flash) ──
+function updatePlannerInPlace(){
+  const y=2026,m=selectedMonth,color=MONTH_COLORS[m],grad=MONTH_GRADS[m];
+  const weeks=getWeeksInMonth(y,m),week=weeks[selectedWeek]||weeks[0];
+  const isRO=!!planOwnerId;
+  const festsWeek=[];week.forEach(d=>{const k=dateKey(d);if(FESTIVALS[k])FESTIVALS[k].forEach(f=>festsWeek.push(f));});
+
+  // Update topbar gradient + month title
+  const topbar=document.querySelector('.planner-topbar');
+  if(topbar) topbar.style.background=grad;
+  const ptMonth=document.querySelector('.pt-month');
+  if(ptMonth) ptMonth.textContent=`${MONTHS[m]} 2026`;
+
+  // Update month strip active state
+  const strip=document.getElementById('month-strip-scroll');
+  if(strip){
+    strip.querySelectorAll('.ms-item').forEach((el,i)=>{
+      el.className=`ms-item${i===m?' active':''}`;
+      el.style.background=i===m?color:'';
+      el.style.color=i===m?'white':'';
+    });
+    const active=strip.querySelector('.ms-item.active');
+    if(active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  }
+
+  // Update week tabs
+  const weekTabsEl=document.querySelector('.week-tabs');
+  if(weekTabsEl){
+    weekTabsEl.innerHTML=weeks.map((w,i)=>{
+      const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);
+      return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`border-bottom:2.5px solid ${color};color:${color}`:''}">W${i+1}${hf?`<span class="wt-dot" style="background:${color}"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()}–${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;
+    }).join('');
+  }
+
+  // Update festival banner
+  let festBanner=document.querySelector('.fest-banner');
+  if(festsWeek.length>0){
+    if(!festBanner){
+      festBanner=document.createElement('div');
+      festBanner.className='fest-banner';
+      document.querySelector('.week-tabs')?.after(festBanner);
+    }
+    festBanner.style.background=grad;
+    festBanner.textContent=festsWeek.map(f=>`${f[0]} ${f[1]}`).join(' · ');
+  } else {
+    festBanner?.remove();
+  }
+
+  // Update day cards
+  const dayCardsEl=document.querySelector('.day-cards');
+  if(dayCardsEl) dayCardsEl.innerHTML=week.map(d=>renderDayCard(d,y,m,color,isRO)).join('');
+
+  // Update notes
+  const notesTitle=document.querySelector('.notes-title');
+  if(notesTitle) notesTitle.style.color=color;
+  const noteAreas=document.querySelectorAll('.note-input');
+  const noteTypes=['g','p','f'];
+  noteAreas.forEach((ta,i)=>{
+    ta.value=getNoteValue(y,m,selectedWeek,noteTypes[i]);
+    ta.setAttribute('onblur',`window._saveNote(${y},${m},${selectedWeek},'${noteTypes[i]}',this.value)`);
+  });
+
+  attachPlannerEvents();
+}
+
+window._changeMonth=m=>{
+  selectedMonth=m;selectedWeek=0;
+  if(!isGuest) subscribeToPlan(2026,m,planOwnerId||currentUser.uid);
+  if(document.querySelector('.planner-screen')) updatePlannerInPlace();
+  else renderCurrentView();
+};
+window._changeWeek=w=>{
+  selectedWeek=w;
+  if(document.querySelector('.planner-screen')) updatePlannerInPlace();
+  else renderCurrentView();
+};
 
 // ── SHARE SCREEN ──
 async function renderShareView(){
