@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Annapurna — 2026 Meal Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,700;9..144,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream:#FFF8EE; --warm:#FFFDF7; --text:#1A0F00;
+  --text-mid:#6B3D1E; --text-light:#9E7A56;
+  --border:#F0D5A8; --shadow:0 2px 16px rgba(92,51,23,0.10); --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#app{min-height:100vh;}
+
+/* TYPOGRAPHY */
+.logo-text{font-family:'Fraunces',serif;font-size:2.8rem;font-weight:900;color:#E8621A;letter-spacing:-1px;line-height:1;}
+.logo-tagline{font-size:0.82rem;color:var(--text-mid);font-weight:500;margin-top:4px;letter-spacing:0.5px;}
+
+/* BUTTONS */
+.btn-primary{background:linear-gradient(135deg,#E8621A,#FF9933);color:white;border:none;border-radius:14px;padding:15px 24px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:1rem;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(232,98,26,0.3);}
+.btn-primary:active{transform:scale(0.97);}
+.btn-primary.full-width{width:100%;}
+.icon-btn{background:rgba(255,255,255,0.2);border:none;border-radius:10px;width:36px;height:36px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);}
+.icon-btn.light{color:white;}
+.icon-btn:active{opacity:0.7;}
+
+/* SPLASH */
+.splash{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;}
+.splash-bg{position:absolute;inset:0;background:linear-gradient(160deg,#FFF8EE 0%,#FFE8C8 50%,#FFF8EE 100%);z-index:0;}
+.splash-bg::before{content:'';position:absolute;top:-100px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,153,51,0.15),transparent 70%);}
+.splash-bg::after{content:'';position:absolute;bottom:-80px;left:-60px;width:250px;height:250px;background:radial-gradient(circle,rgba(232,98,26,0.1),transparent 70%);}
+.splash-content{position:relative;z-index:1;width:100%;max-width:380px;text-align:center;display:flex;flex-direction:column;gap:28px;}
+.splash-logo{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.logo-icon{font-size:3.5rem;filter:drop-shadow(0 4px 12px rgba(232,98,26,0.3));animation:float 3s ease-in-out infinite;}
+.logo-icon.small{font-size:1.8rem;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.splash-features{display:flex;flex-direction:column;gap:10px;background:white;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.feat-item{display:flex;align-items:center;gap:10px;font-size:0.88rem;color:var(--text-mid);font-weight:500;}
+.feat-item span{font-size:1.1rem;}
+.splash-note{font-size:0.72rem;color:var(--text-light);}
+
+/* AUTH */
+.auth-screen{min-height:100vh;padding:24px;display:flex;flex-direction:column;align-items:center;gap:24px;background:var(--cream);padding-top:60px;}
+.auth-header{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.auth-title{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:#E8621A;}
+.auth-card{width:100%;max-width:380px;background:white;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
+.auth-tabs{display:flex;gap:0;background:#f5f0e8;border-radius:10px;padding:4px;margin-bottom:20px;}
+.auth-tab{flex:1;padding:9px;border-radius:8px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;color:var(--text-mid);transition:all 0.2s;}
+.auth-tab.active{background:white;color:#E8621A;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:0.78rem;font-weight:600;color:var(--text-mid);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--text);background:var(--cream);outline:none;transition:border 0.2s;}
+.form-group input:focus{border-color:#E8621A;background:white;}
+.auth-error{background:#FFF0EE;border:1px solid #F0A89A;color:#C0392B;padding:10px 12px;border-radius:8px;font-size:0.82rem;margin-bottom:14px;}
+
+/* HOME */
+.home-screen{min-height:100vh;display:flex;flex-direction:column;background:var(--cream);}
+.home-header{padding:20px 18px 16px;color:white;border-radius:0 0 24px 24px;}
+.home-header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.home-greeting{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;line-height:1.1;}
+.home-date{font-size:0.78rem;opacity:0.85;margin-top:3px;}
+.festival-chip{background:rgba(255,255,255,0.2);border-radius:20px;padding:6px 12px;font-size:0.78rem;font-weight:500;display:inline-block;}
+.home-body{flex:1;padding:18px 16px;padding-bottom:80px;}
+.section-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-light);margin-bottom:10px;}
+.month-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.month-card{background:white;border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;box-shadow:0 1px 6px rgba(92,51,23,0.08);transition:all 0.15s;}
+.month-card:active{transform:scale(0.95);}
+.mc-name{font-size:0.72rem;font-weight:700;color:var(--text-mid);}
+.mc-dot{width:6px;height:6px;border-radius:50%;margin:5px auto 0;}
+.shared-list{display:flex;flex-direction:column;gap:8px;}
+.shared-card{display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;}
+.shared-card:active{transform:scale(0.98);}
+.shared-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:white;flex-shrink:0;}
+.shared-info{flex:1;min-width:0;}
+.shared-name{font-weight:600;font-size:0.9rem;}
+.shared-email{font-size:0.72rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.shared-arrow{font-size:1.1rem;}
+.share-btn{width:100%;padding:14px;background:white;border:2px dashed var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s;}
+.share-btn:active{background:var(--cream);}
+
+/* PLANNER */
+.planner-screen{min-height:100vh;display:flex;flex-direction:column;background:var(--cream);}
+.planner-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:white;}
+.planner-title{text-align:center;}
+.pt-month{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:white;}
+.pt-shared{font-size:0.7rem;opacity:0.85;margin-top:2px;}
+.month-strip{display:flex;overflow-x:auto;padding:8px 12px;gap:6px;background:white;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.month-strip::-webkit-scrollbar{display:none;}
+.ms-item{flex-shrink:0;padding:5px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;cursor:pointer;color:var(--text-mid);background:var(--cream);transition:all 0.15s;}
+.week-tabs{display:flex;overflow-x:auto;background:white;border-bottom:2px solid var(--border);scrollbar-width:none;}
+.week-tabs::-webkit-scrollbar{display:none;}
+.wt-item{flex:1;min-width:0;padding:8px 4px;text-align:center;font-size:0.7rem;font-weight:700;cursor:pointer;color:var(--text-mid);position:relative;white-space:nowrap;border-bottom:2.5px solid transparent;transition:all 0.15s;}
+.wt-item.active{color:#E8621A;}
+.wt-dates{display:block;font-size:0.58rem;font-weight:500;opacity:0.65;margin-top:1px;}
+.wt-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-left:2px;vertical-align:middle;}
+.fest-banner{padding:8px 16px;color:white;font-size:0.78rem;font-weight:600;text-align:center;}
+.day-cards{display:flex;flex-direction:column;gap:10px;padding:12px;}
+.day-card{background:white;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+.dc-header{padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.dc-date-block{flex-shrink:0;text-align:center;width:36px;}
+.dc-dayname{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);}
+.dc-daynum{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;line-height:1;}
+.dc-fest-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.dc-fest-tag{font-size:0.58rem;font-weight:700;padding:2px 7px;border-radius:20px;}
+.dc-today-tag{font-size:0.58rem;font-weight:700;padding:2px 7px;border-radius:20px;background:#E8621A20;color:#E8621A;}
+.dc-weekend-tag{font-size:0.58rem;font-weight:600;padding:2px 7px;border-radius:20px;background:#8E44AD20;color:#8E44AD;}
+.dc-meals{padding:6px 12px 12px;display:flex;flex-direction:column;gap:6px;}
+.dc-meal-row{display:flex;align-items:flex-start;gap:8px;}
+.dc-meal-label{font-size:0.85rem;padding-top:8px;flex-shrink:0;}
+.dc-meal-input{flex:1;min-height:34px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text);background:var(--cream);outline:none;transition:border 0.15s;word-break:break-word;}
+.dc-meal-input:focus,.dc-meal-input.focused{border-color:#E8621A;background:white;}
+.dc-meal-input:empty::before{content:attr(placeholder);color:#C8A882;font-style:italic;pointer-events:none;}
+.dc-meal-input.readonly{background:#F8F5F0;cursor:default;}
+.notes-block{margin:0 12px 12px;background:white;border-radius:14px;padding:14px;box-shadow:var(--shadow);}
+.notes-title{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;margin-bottom:12px;}
+.notes-cols{display:flex;flex-direction:column;gap:10px;}
+.note-col-label{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:5px;}
+.note-input{width:100%;min-height:60px;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text);background:var(--cream);outline:none;resize:none;transition:border 0.15s;}
+.note-input:focus{border-color:#E8621A;background:white;}
+
+/* SHARE */
+.share-screen{min-height:100vh;display:flex;flex-direction:column;background:var(--cream);}
+.share-body{flex:1;padding:16px;padding-bottom:90px;display:flex;flex-direction:column;gap:16px;}
+.share-info-card{display:flex;gap:12px;background:white;border-radius:14px;padding:14px;box-shadow:var(--shadow);align-items:flex-start;}
+.sic-icon{font-size:1.8rem;}
+.sic-text strong{display:block;font-size:0.9rem;margin-bottom:3px;}
+.sic-text p{font-size:0.78rem;color:var(--text-mid);line-height:1.4;}
+.share-input-row{display:flex;gap:8px;}
+.share-input-row input{flex:1;padding:11px 13px;border:2px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);background:var(--cream);outline:none;}
+.share-input-row input:focus{border-color:#1A6BA0;background:white;}
+.btn-share-add{padding:11px 16px;background:linear-gradient(135deg,#1A6BA0,#0D8C7A);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;white-space:nowrap;}
+.share-msg{font-size:0.8rem;margin-top:6px;padding:8px 10px;border-radius:8px;}
+.share-msg.success{background:#E8F5E9;color:#2E7D32;}
+.share-msg.error{background:#FFEBEE;color:#C62828;}
+.empty-state{text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;}
+.remove-btn{background:#FFEBEE;border:none;border-radius:8px;padding:6px 10px;color:#C62828;font-size:0.75rem;font-weight:700;cursor:pointer;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:100;box-shadow:0 -2px 16px rgba(92,51,23,0.06);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:0.45;transition:opacity 0.15s;}
+.nav-item.active{opacity:1;}
+.nav-item span:first-child{font-size:1.2rem;}
+.nav-item span:last-child{font-size:0.62rem;font-weight:600;color:var(--text-mid);}
+
+/* CONFIG BANNER */
+.config-banner{background:#FFF3CD;border:1.5px solid #FBBF24;border-radius:10px;padding:12px 14px;font-size:0.78rem;color:#7C4700;margin:12px;line-height:1.5;}
+.config-banner strong{display:block;margin-bottom:4px;color:#92400E;}
+.config-banner code{background:#FEF3C7;border-radius:4px;padding:1px 5px;font-size:0.75rem;}
+
+@media(min-width:480px){
+  #app{max-width:420px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,0.15);min-height:100vh;}
+  .bottom-nav{max-width:420px;left:50%;transform:translateX(-50%);}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import{getFirestore,doc,setDoc,getDoc,collection,query,where,getDocs,onSnapshot,updateDoc,arrayUnion,arrayRemove,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ─── PASTE YOUR FIREBASE CONFIG HERE ──────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyAwwnEQqEUqOx5Y_kCexN_beKv2Qklzu4A",
+  authDomain: "annapurna-12680.firebaseapp.com",
+  projectId: "annapurna-12680",
+  storageBucket: "annapurna-12680.firebasestorage.app",
+  messagingSenderId: "223394900908",
+  appId: "1:223394900908:web:cb265f757c24bc3087a809",
+  measurementId: "G-TER09RGZFR"
+};
+// ──────────────────────────────────────────────────────────────
+
+const IS_CONFIGURED = !firebaseConfig.apiKey.includes("YOUR_");
+
+const FESTIVALS={
+  "2026-01-01":[["🎉","New Year"]],"2026-01-13":[["🔥","Lohri"]],"2026-01-14":[["🌾","Sankranti"],["🍚","Pongal"]],
+  "2026-01-23":[["🌼","Vasant Panchami"]],"2026-01-26":[["🇮🇳","Republic Day"]],"2026-02-14":[["❤️","Valentine's Day"]],
+  "2026-02-15":[["🙏","Maha Shivratri"]],"2026-03-03":[["🔥","Holika Dahan"]],"2026-03-04":[["🎨","Holi"]],
+  "2026-03-19":[["🌸","Ugadi"]],"2026-03-20":[["🕌","Eid ul-Fitr"]],"2026-03-26":[["🙏","Ram Navami"]],
+  "2026-04-03":[["✝️","Good Friday"]],"2026-04-05":[["✝️","Easter"]],"2026-04-14":[["🌸","Baisakhi"]],
+  "2026-05-01":[["🌕","Buddha Purnima"],["👷","Labour Day"]],"2026-05-27":[["🕌","Eid ul-Adha"]],
+  "2026-06-17":[["🕌","Islamic New Year"]],"2026-06-26":[["🕌","Muharram"]],
+  "2026-08-15":[["🇮🇳","Independence Day"]],"2026-08-26":[["🌺","Onam"]],"2026-08-28":[["🪢","Raksha Bandhan"]],
+  "2026-09-04":[["🙏","Janmashtami"]],"2026-09-14":[["🍬","Ganesh Chaturthi"]],
+  "2026-10-02":[["🕊️","Gandhi Jayanti"]],"2026-10-11":[["🙏","Navratri"]],"2026-10-20":[["⚔️","Dussehra"]],"2026-10-29":[["🏮","Karva Chauth"]],
+  "2026-11-05":[["🪯","Guru Nanak Jayanti"]],"2026-11-06":[["✨","Dhanteras"]],"2026-11-08":[["🪔","Diwali"]],
+  "2026-11-10":[["🏔️","Govardhan Puja"]],"2026-11-11":[["🎁","Bhai Dooj"]],"2026-11-12":[["🙏","Chhath Puja"]],
+  "2026-12-25":[["🎄","Christmas"]],"2026-12-31":[["🎊","New Year's Eve"]]
+};
+
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAYS_SHORT=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MEALS=["breakfast","lunch","snacks","dinner"];
+const MEAL_ICONS={breakfast:"☀️",lunch:"🌿",snacks:"🍵",dinner:"🌙"};
+const MONTH_COLORS=["#E8621A","#8E44AD","#E91E63","#27AE60","#D4890A","#1A6BA0","#0D8C7A","#B03A2E","#E65100","#BF360C","#E65100","#2E7D32"];
+const MONTH_GRADS=["linear-gradient(135deg,#E8621A,#FF9933)","linear-gradient(135deg,#7B2D8B,#9B59B6)","linear-gradient(135deg,#E91E63,#FF9800)","linear-gradient(135deg,#27AE60,#1A7A6E)","linear-gradient(135deg,#D4890A,#F39C12)","linear-gradient(135deg,#1A6BA0,#3498DB)","linear-gradient(135deg,#0D6B6B,#0D8C7A)","linear-gradient(135deg,#B03A2E,#E8621A)","linear-gradient(135deg,#E65100,#F57C00)","linear-gradient(135deg,#BF360C,#E64A19)","linear-gradient(135deg,#E65100,#F9A825)","linear-gradient(135deg,#B71C1C,#2E7D32)"];
+
+let auth, db;
+if(IS_CONFIGURED){
+  const app=initializeApp(firebaseConfig);
+  auth=getAuth(app); db=getFirestore(app);
+}
+
+let currentUser=null,currentView='splash',selectedMonth=new Date().getMonth(),selectedWeek=0;
+let plannerData={},planOwnerId=null,unsubscribePlanner=null;
+
+// ── HELPERS ──
+const dateKey=d=>d.toISOString().split('T')[0];
+
+function getWeeksInMonth(year,month){
+  const first=new Date(year,month,1),last=new Date(year,month+1,0);
+  const weeks=[];let cur=new Date(first);
+  while(cur<=last){
+    const wk=[];
+    if(weeks.length===0){
+      while(cur<=last){wk.push(new Date(cur));cur.setDate(cur.getDate()+1);if(cur.getDay()===1&&wk.length>0)break;}
+    } else {
+      while(cur<=last){wk.push(new Date(cur));cur.setDate(cur.getDate()+1);if(cur.getDay()===1)break;}
+    }
+    if(wk.length>0)weeks.push(wk);
+  }
+  return weeks;
+}
+
+function stringToColor(s){const h=s.split('').reduce((a,c)=>c.charCodeAt(0)+((a<<5)-a),0);return["#E8621A","#8E44AD","#27AE60","#1A6BA0","#BF360C","#D4890A"][Math.abs(h)%6];}
+
+function getMealValue(y,m,d,meal){return(plannerData[`${y}_${m}`]||{})[`${d}_${meal}`]||'';}
+function getNoteValue(y,m,w,t){return(plannerData[`${y}_${m}`]||{})[`note_${w}_${t}`]||'';}
+
+// ── FIREBASE OPS ──
+async function saveMealEntry(y,m,d,meal,val){
+  if(!IS_CONFIGURED||planOwnerId||!currentUser)return;
+  const ref=doc(db,'plans',`${currentUser.uid}_${y}_${m}`);
+  await setDoc(ref,{[`${d}_${meal}`]:val,uid:currentUser.uid,year:y,month:m,updatedAt:serverTimestamp()},{merge:true});
+}
+
+async function saveNote(y,m,w,t,val){
+  if(!IS_CONFIGURED||planOwnerId||!currentUser)return;
+  const ref=doc(db,'plans',`${currentUser.uid}_${y}_${m}`);
+  await setDoc(ref,{[`note_${w}_${t}`]:val,uid:currentUser.uid},{merge:true});
+}
+
+function subscribeToPlan(y,m,uid){
+  if(!IS_CONFIGURED)return;
+  if(unsubscribePlanner)unsubscribePlanner();
+  const ref=doc(db,'plans',`${uid}_${y}_${m}`);
+  unsubscribePlanner=onSnapshot(ref,snap=>{
+    plannerData[`${y}_${m}`]=snap.exists()?snap.data():{};
+    if(currentView==='planner'||currentView==='shared-view')renderCurrentView();
+  });
+}
+
+async function loadUserProfile(){
+  if(!IS_CONFIGURED||!currentUser)return{};
+  const snap=await getDoc(doc(db,'users',currentUser.uid));
+  return snap.exists()?snap.data():{};
+}
+
+async function shareWithUser(email){
+  if(!IS_CONFIGURED)throw new Error('Firebase not configured yet.');
+  const q=query(collection(db,'users'),where('email','==',email.toLowerCase().trim()));
+  const snap=await getDocs(q);
+  if(snap.empty)throw new Error('No Annapurna account found with that email.');
+  const tid=snap.docs[0].id;
+  if(tid===currentUser.uid)throw new Error('You cannot share with yourself.');
+  const tdata=snap.docs[0].data();
+  await updateDoc(doc(db,'users',currentUser.uid),{sharedWith:arrayUnion({uid:tid,email:email.toLowerCase().trim(),name:tdata.name||email})});
+  await updateDoc(doc(db,'users',tid),{sharedToMe:arrayUnion({uid:currentUser.uid,email:currentUser.email,name:currentUser.displayName||currentUser.email})});
+  return tdata.name||email;
+}
+
+async function removeShare(tuid,temail){
+  if(!IS_CONFIGURED)return;
+  await updateDoc(doc(db,'users',currentUser.uid),{sharedWith:arrayRemove({uid:tuid,email:temail})});
+  const targetSnap=await getDocs(query(collection(db,'users'),where('email','==',temail)));
+  if(!targetSnap.empty){
+    await updateDoc(doc(db,'users',targetSnap.docs[0].id),{sharedToMe:arrayRemove({uid:currentUser.uid,email:currentUser.email,name:currentUser.displayName||currentUser.email})});
+  }
+}
+
+// ── RENDER ──
+function renderCurrentView(){
+  if(currentView==='home'){renderHome();return;}
+  if(currentView==='share'){renderShareView();return;}
+  const app=document.getElementById('app');
+  if(currentView==='splash')app.innerHTML=renderSplash();
+  else if(currentView==='auth')app.innerHTML=renderAuth('login');
+  else if(currentView==='planner'||currentView==='shared-view'){app.innerHTML=renderPlanner();attachPlannerEvents();}
+}
+
+// ── SPLASH ──
+function renderSplash(){return`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🍱</div><h1 class="logo-text">Annapurna</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your plan with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Get Started</button><p class="splash-note">Free · No ads · Private</p></div></div>`;}
+
+// ── AUTH ──
+function renderAuth(mode){return`<div class="auth-screen"><div class="auth-header"><div class="logo-icon small">🍱</div><h2 class="auth-title">Annapurna</h2></div><div class="auth-card">${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase Setup Required</strong>Open this file in a text editor and paste your Firebase config where it says <code>YOUR_API_KEY</code> etc. <a href="https://console.firebase.google.com" target="_blank" style="color:#1A6BA0">→ Get your config at Firebase Console</a></div>`:''}
+<div class="auth-tabs"><button class="auth-tab ${mode==='login'?'active':''}" onclick="window._switchAuth('login')">Sign In</button><button class="auth-tab ${mode==='signup'?'active':''}" onclick="window._switchAuth('signup')">Create Account</button></div>
+<div id="auth-error" class="auth-error" style="display:none"></div>
+${mode==='signup'?`<div class="form-group"><label>Your Name</label><input type="text" id="auth-name" placeholder="e.g. Priya Sharma"/></div>`:''}
+<div class="form-group"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com"/></div>
+<div class="form-group"><label>Password</label><input type="password" id="auth-password" placeholder="${mode==='signup'?'Min 6 characters':'Your password'}"/></div>
+<button class="btn-primary full-width" id="auth-submit" onclick="window._handleAuth('${mode}')">${mode==='login'?'Sign In':'Create Account'}</button>
+</div></div>`;}
+
+window._switchAuth=m=>{document.getElementById('app').innerHTML=renderAuth(m);};
+window._handleAuth=async mode=>{
+  if(!IS_CONFIGURED){
+    document.getElementById('auth-error').textContent='Please configure Firebase first (see the yellow notice above).';
+    document.getElementById('auth-error').style.display='block';return;
+  }
+  const btn=document.getElementById('auth-submit'),err=document.getElementById('auth-error');
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  err.style.display='none';btn.disabled=true;btn.textContent='...';
+  try{
+    if(mode==='signup'){
+      const name=document.getElementById('auth-name').value.trim();
+      if(!name)throw new Error('Please enter your name.');
+      const cred=await createUserWithEmailAndPassword(auth,email,password);
+      await updateProfile(cred.user,{displayName:name});
+      await setDoc(doc(db,'users',cred.user.uid),{email:email.toLowerCase(),name,sharedWith:[],sharedToMe:[],createdAt:serverTimestamp()});
+    } else {
+      await signInWithEmailAndPassword(auth,email,password);
+    }
+  } catch(e){
+    err.textContent=e.message.replace('Firebase: ','').replace(/\(auth\/[^)]+\)/,'').trim();
+    err.style.display='block';btn.disabled=false;btn.textContent=mode==='login'?'Sign In':'Create Account';
+  }
+};
+
+// ── HOME ──
+async function renderHome(){
+  const profile=await loadUserProfile();
+  const name=currentUser?.displayName||'Friend';
+  const firstName=name.split(' ')[0];
+  const sharedToMe=profile.sharedToMe||[];
+  const today=new Date();
+  let nextFest=null;
+  for(let i=0;i<60;i++){const d=new Date(today);d.setDate(d.getDate()+i);const k=dateKey(d);if(FESTIVALS[k]){nextFest={date:d,fests:FESTIVALS[k],daysAway:i};break;}}
+  const grad=MONTH_GRADS[today.getMonth()];
+  document.getElementById('app').innerHTML=`
+  <div class="home-screen">
+    <div class="home-header" style="background:${grad}">
+      <div class="home-header-top">
+        <div><p class="home-greeting">Namaste, ${firstName} 🙏</p><p class="home-date">${today.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p></div>
+        <button class="icon-btn" onclick="window._signOut()" title="Sign out" style="background:rgba(255,255,255,0.2);color:white;font-size:0.75rem;font-weight:700;width:auto;padding:0 10px;">Sign Out</button>
+      </div>
+      ${nextFest?`<div class="festival-chip">${nextFest.fests[0][0]} ${nextFest.daysAway===0?'Today: ':nextFest.daysAway===1?'Tomorrow: ':`In ${nextFest.daysAway} days: `}<strong>${nextFest.fests.map(f=>f[1]).join(' & ')}</strong></div>`:''}
+    </div>
+    <div class="home-body">
+      <div class="section-label" style="margin-bottom:10px">My Meal Plan — 2026</div>
+      <div class="month-grid">${MONTHS.map((m,i)=>`<div class="month-card" onclick="window._openMyPlanner(${i})" style="--mc:${MONTH_COLORS[i]}"><div class="mc-name">${m.slice(0,3)}</div><div class="mc-dot" style="background:${MONTH_COLORS[i]}"></div></div>`).join('')}</div>
+      ${sharedToMe.length>0?`<div class="section-label" style="margin-top:24px">Shared With Me</div><div class="shared-list">${sharedToMe.map(p=>`<div class="shared-card" onclick="window._viewSharedPlan('${p.uid}','${p.name||p.email}')"><div class="shared-avatar" style="background:${stringToColor(p.email)}">${(p.name||p.email)[0].toUpperCase()}</div><div class="shared-info"><div class="shared-name">${p.name||p.email}</div><div class="shared-email">${p.email}</div></div><div class="shared-arrow">👁️</div></div>`).join('')}</div>`:''}
+      <div class="section-label" style="margin-top:24px">Sharing</div>
+      <button class="share-btn" onclick="window._goTo('share')"><span>📤</span> Share My Plan with Someone</button>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active"><span>🏠</span><span>Home</span></div>
+      <div class="nav-item" onclick="window._openMyPlanner(${today.getMonth()})"><span>📅</span><span>Planner</span></div>
+      <div class="nav-item" onclick="window._goTo('share')"><span>📤</span><span>Share</span></div>
+    </div>
+  </div>`;
+}
+
+window._openMyPlanner=m=>{planOwnerId=null;selectedMonth=m;selectedWeek=0;currentView='planner';subscribeToPlan(2026,m,currentUser.uid);renderCurrentView();};
+window._viewSharedPlan=(uid,name)=>{planOwnerId=uid;selectedMonth=new Date().getMonth();selectedWeek=0;currentView='shared-view';subscribeToPlan(2026,selectedMonth,uid);renderCurrentView();};
+window._signOut=async()=>{if(unsubscribePlanner)unsubscribePlanner();await signOut(auth);};
+window._goTo=v=>{currentView=v;renderCurrentView();};
+window._backToHome=()=>{if(unsubscribePlanner){unsubscribePlanner();unsubscribePlanner=null;}planOwnerId=null;currentView='home';renderHome();};
+
+// ── PLANNER ──
+function renderPlanner(){
+  const y=2026,m=selectedMonth,color=MONTH_COLORS[m],grad=MONTH_GRADS[m];
+  const weeks=getWeeksInMonth(y,m),week=weeks[selectedWeek]||weeks[0];
+  const isRO=!!planOwnerId;
+  const festsWeek=[];week.forEach(d=>{const k=dateKey(d);if(FESTIVALS[k])FESTIVALS[k].forEach(f=>festsWeek.push(f));});
+  return`<div class="planner-screen">
+  <div class="planner-topbar" style="background:${grad}">
+    <button class="icon-btn light" onclick="window._backToHome()">← Back</button>
+    <div class="planner-title"><div class="pt-month">${MONTHS[m]} 2026</div>${isRO?`<div class="pt-shared">👁️ Viewing shared plan</div>`:''}</div>
+    ${!isRO?`<button class="icon-btn light" onclick="window._goTo('share')" style="font-size:0.85rem">📤</button>`:`<div style="width:48px"></div>`}
+  </div>
+  <div class="month-strip">${MONTHS.map((mn,i)=>`<div class="ms-item ${i===m?'active':''}" onclick="window._changeMonth(${i})" style="${i===m?`background:${color};color:white`:''}">${mn.slice(0,3)}</div>`).join('')}</div>
+  <div class="week-tabs">${weeks.map((w,i)=>{const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`border-bottom:2.5px solid ${color};color:${color}`:''}">W${i+1}${hf?`<span class="wt-dot" style="background:${color}"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()}–${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;}).join('')}</div>
+  ${festsWeek.length>0?`<div class="fest-banner" style="background:${grad}">${festsWeek.map(f=>`${f[0]} ${f[1]}`).join(' · ')}</div>`:''}
+  <div class="day-cards">${week.map(d=>renderDayCard(d,y,m,color,isRO)).join('')}</div>
+  <div class="notes-block">
+    <div class="notes-title" style="color:${color}">📝 Week Notes</div>
+    <div class="notes-cols">
+      <div class="note-col"><div class="note-col-label">🛒 Groceries</div><textarea class="note-input" ${isRO?'readonly':''} onblur="window._saveNote(${y},${m},${selectedWeek},'g',this.value)" placeholder="Groceries...">${getNoteValue(y,m,selectedWeek,'g')}</textarea></div>
+      <div class="note-col"><div class="note-col-label">💡 Prep Tips</div><textarea class="note-input" ${isRO?'readonly':''} onblur="window._saveNote(${y},${m},${selectedWeek},'p',this.value)" placeholder="Prep notes...">${getNoteValue(y,m,selectedWeek,'p')}</textarea></div>
+      <div class="note-col"><div class="note-col-label">🎊 Festival Notes</div><textarea class="note-input" ${isRO?'readonly':''} onblur="window._saveNote(${y},${m},${selectedWeek},'f',this.value)" placeholder="Festival notes...">${getNoteValue(y,m,selectedWeek,'f')}</textarea></div>
+    </div>
+  </div>
+  <div style="height:80px"></div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window._backToHome()"><span>🏠</span><span>Home</span></div>
+    <div class="nav-item active"><span>📅</span><span>Planner</span></div>
+    <div class="nav-item" onclick="window._goTo('share')"><span>📤</span><span>Share</span></div>
+  </div></div>`;
+}
+
+function renderDayCard(d,y,m,color,isRO){
+  const day=d.getDate(),dk=dateKey(d),fests=FESTIVALS[dk];
+  const isWeekend=d.getDay()===0||d.getDay()===6,isToday=dk===dateKey(new Date());
+  return`<div class="day-card">
+  <div class="dc-header" style="${fests?`background:${color}10;border-left:3px solid ${color}`:`border-left:3px solid #eee`}">
+    <div class="dc-date-block"><div class="dc-dayname">${DAYS_SHORT[d.getDay()]}</div><div class="dc-daynum" style="color:${fests||isToday?color:'#2C1A0E'}">${day}</div></div>
+    <div class="dc-fest-tags">
+      ${isToday?'<span class="dc-today-tag">Today</span>':''}
+      ${fests?fests.map(f=>`<span class="dc-fest-tag" style="background:${color}20;color:${color}">${f[0]} ${f[1]}</span>`).join(''):''}
+      ${isWeekend&&!fests?'<span class="dc-weekend-tag">Weekend</span>':''}
+    </div>
+  </div>
+  <div class="dc-meals">${MEALS.map(meal=>`<div class="dc-meal-row"><div class="dc-meal-label">${MEAL_ICONS[meal]}</div><div class="dc-meal-input ${isRO?'readonly':''}" ${!isRO?'contenteditable="true"':''} data-key="${y}_${m}_${day}_${meal}" ${!isRO?'onblur="window._mealBlur(this)"':''} placeholder="${meal.charAt(0).toUpperCase()+meal.slice(1)}...">${getMealValue(y,m,day,meal)}</div></div>`).join('')}
+  </div></div>`;
+}
+
+function attachPlannerEvents(){document.querySelectorAll('.dc-meal-input[contenteditable]').forEach(el=>{el.addEventListener('focus',()=>el.classList.add('focused'));el.addEventListener('blur',()=>el.classList.remove('focused'));});}
+
+window._mealBlur=async el=>{const[y,m,d,meal]=el.dataset.key.split('_');await saveMealEntry(+y,+m,+d,meal,el.innerText.trim());};
+window._saveNote=async(y,m,w,t,v)=>{await saveNote(y,m,w,t,v);};
+window._changeMonth=m=>{selectedMonth=m;selectedWeek=0;subscribeToPlan(2026,m,planOwnerId||currentUser.uid);renderCurrentView();};
+window._changeWeek=w=>{selectedWeek=w;renderCurrentView();};
+
+// ── SHARE SCREEN ──
+async function renderShareView(){
+  const profile=await loadUserProfile();
+  const sharedWith=profile.sharedWith||[];
+  document.getElementById('app').innerHTML=`<div class="share-screen">
+  <div class="planner-topbar" style="background:linear-gradient(135deg,#1A6BA0,#0D8C7A)">
+    <button class="icon-btn light" onclick="window._backToHome()">← Back</button>
+    <div class="planner-title"><div class="pt-month">Share My Plan</div></div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="share-body">
+    <div class="share-info-card"><div class="sic-icon">📤</div><div class="sic-text"><strong>Share your meal plan</strong><p>Enter someone's email to let them view your plan. They need an Annapurna account.</p></div></div>
+    ${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase not configured</strong>Share feature requires Firebase setup.</div>`:''}
+    <div class="form-group"><label>Invite by Email</label><div class="share-input-row"><input type="email" id="share-email" placeholder="friend@example.com"/><button class="btn-share-add" onclick="window._handleShareAdd()">Add</button></div><div id="share-msg" class="share-msg" style="display:none"></div></div>
+    <div class="section-label">Currently Shared With</div>
+    <div id="shared-list">${sharedWith.length===0?`<div class="empty-state">Not shared with anyone yet.</div>`:sharedWith.map(p=>`<div class="shared-card" id="sc_${p.uid}"><div class="shared-avatar" style="background:${stringToColor(p.email)}">${(p.name||p.email)[0].toUpperCase()}</div><div class="shared-info"><div class="shared-name">${p.name||p.email}</div><div class="shared-email">${p.email}</div></div><button class="remove-btn" onclick="window._removeShare('${p.uid}','${p.email}')">✕ Remove</button></div>`).join('')}</div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window._backToHome()"><span>🏠</span><span>Home</span></div>
+    <div class="nav-item" onclick="window._openMyPlanner(${selectedMonth})"><span>📅</span><span>Planner</span></div>
+    <div class="nav-item active"><span>📤</span><span>Share</span></div>
+  </div></div>`;
+}
+
+window._handleShareAdd=async()=>{
+  const ei=document.getElementById('share-email'),btn=document.querySelector('.btn-share-add'),msg=document.getElementById('share-msg');
+  const email=ei.value.trim();if(!email)return;
+  btn.disabled=true;btn.textContent='...';msg.style.display='none';
+  try{const name=await shareWithUser(email);msg.className='share-msg success';msg.textContent=`✅ ${name} can now view your meal plan!`;msg.style.display='block';ei.value='';setTimeout(()=>renderShareView(),1500);}
+  catch(e){msg.className='share-msg error';msg.textContent=`❌ ${e.message}`;msg.style.display='block';}
+  btn.disabled=false;btn.textContent='Add';
+};
+window._removeShare=async(uid,email)=>{const c=document.getElementById(`sc_${uid}`);if(c)c.style.opacity='0.3';await removeShare(uid,email);renderShareView();};
+
+// ── AUTH STATE ──
+if(IS_CONFIGURED){
+  onAuthStateChanged(auth,user=>{
+    currentUser=user;
+    if(user){currentView='home';renderHome();}
+    else{currentView='auth';document.getElementById('app').innerHTML=renderAuth('login');}
+  });
+} else {
+  // Show splash then auth (with config warning)
+  document.getElementById('app').innerHTML=`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🍱</div><h1 class="logo-text">Annapurna</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your plan with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Setup & Get Started →</button><p class="splash-note">Requires Firebase configuration — takes 5 mins</p></div></div>`;
+}
+</script>
+</body>
+</html>
