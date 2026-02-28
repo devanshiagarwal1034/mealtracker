@@ -138,6 +138,17 @@ html,body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--t
 .empty-state{text-align:center;color:var(--text-light);font-size:0.85rem;padding:20px;}
 .remove-btn{background:#FFEBEE;border:none;border-radius:8px;padding:6px 10px;color:#C62828;font-size:0.75rem;font-weight:700;cursor:pointer;}
 
+/* EXPORT CARDS */
+.export-section{display:flex;flex-direction:column;gap:10px;margin-bottom:4px;}
+.export-card{display:flex;align-items:center;gap:14px;background:white;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;border:none;width:100%;font-family:'DM Sans',sans-serif;text-align:left;}
+.export-card:active{transform:scale(0.98);}
+.export-card-icon{font-size:1.6rem;flex-shrink:0;}
+.export-card-text strong{display:block;font-size:0.88rem;font-weight:700;color:var(--text);}
+.export-card-text span{font-size:0.75rem;color:var(--text-mid);}
+.export-divider{display:flex;align-items:center;gap:10px;margin:6px 0;}
+.export-divider::before,.export-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.export-divider span{font-size:0.68rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;}
+
 /* BOTTOM NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;padding:8px 0 12px;z-index:100;box-shadow:0 -2px 16px rgba(92,51,23,0.06);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:0.45;transition:opacity 0.15s;}
@@ -631,14 +642,34 @@ window._changeWeek=w=>{
 async function renderShareView(){
   const profile=await loadUserProfile();
   const sharedWith=profile.sharedWith||[];
+  const canNativeShare=!!navigator.share;
   document.getElementById('app').innerHTML=`<div class="share-screen">
   <div class="planner-topbar" style="background:linear-gradient(135deg,#1A6BA0,#0D8C7A)">
-    <button class="icon-btn light" onclick="window._backToHome()">← Back</button>
+    <button class="icon-btn light" onclick="window._backToHome()" style="font-size:1.1rem;">🏠</button>
     <div class="planner-title"><div class="pt-month">Share My Plan</div></div>
     <div style="width:48px"></div>
   </div>
   <div class="share-body">
-    <div class="share-info-card"><div class="sic-icon">📤</div><div class="sic-text"><strong>Share your meal plan</strong><p>Enter someone's email to let them view your plan. They need an Annapurna account.</p></div></div>
+
+    <div class="section-label">Share Without an Account</div>
+    <div class="export-section">
+      <button class="export-card" onclick="window._downloadMonthImage()">
+        <div class="export-card-icon">🖼️</div>
+        <div class="export-card-text"><strong>Download as Image</strong><span>Save this month's plan as a PNG — easy to send on WhatsApp</span></div>
+      </button>
+      ${canNativeShare?`<button class="export-card" onclick="window._nativeShare()">
+        <div class="export-card-icon">📱</div>
+        <div class="export-card-text"><strong>Share via WhatsApp / Messages</strong><span>Opens your phone's share sheet</span></div>
+      </button>`:''}
+      <button class="export-card" onclick="window._copyTextPlan()">
+        <div class="export-card-icon">📋</div>
+        <div class="export-card-text"><strong>Copy as Text</strong><span>Copy this week's meals to paste anywhere</span></div>
+      </button>
+    </div>
+
+    <div class="export-divider"><span>or invite to app</span></div>
+
+    <div class="share-info-card"><div class="sic-icon">👤</div><div class="sic-text"><strong>Invite by Annapurna account</strong><p>They can view your live plan anytime — updates automatically.</p></div></div>
     ${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase not configured</strong>Share feature requires Firebase setup.</div>`:''}
     <div class="form-group"><label>Invite by Email</label><div class="share-input-row"><input type="email" id="share-email" placeholder="friend@example.com"/><button class="btn-share-add" onclick="window._handleShareAdd()">Add</button></div><div id="share-msg" class="share-msg" style="display:none"></div></div>
     <div class="section-label">Currently Shared With</div>
@@ -650,6 +681,118 @@ async function renderShareView(){
     <div class="nav-item active"><span>📤</span><span>Share</span></div>
   </div></div>`;
 }
+
+// ── EXPORT HELPERS ──
+
+// Build a readable text summary of current week
+function buildTextPlan(){
+  const y=2026,m=selectedMonth;
+  const weeks=getWeeksInMonth(y,m),week=weeks[selectedWeek]||weeks[0];
+  const color=MONTH_COLORS[m];
+  let lines=[`🍱 Annapurna Meal Plan — ${MONTHS[m]} 2026, Week ${selectedWeek+1}`,`${'─'.repeat(36)}`];
+  week.forEach(d=>{
+    const day=d.getDate(),dk=dateKey(d),fests=FESTIVALS[dk];
+    lines.push(`\n${DAYS_SHORT[d.getDay()]} ${day}${fests?' '+fests.map(f=>f[0]+' '+f[1]).join(', '):''}`);
+    MEALS.forEach(meal=>{
+      const val=getMealValue(y,m,day,meal);
+      if(val) lines.push(`  ${MEAL_ICONS[meal]} ${meal.charAt(0).toUpperCase()+meal.slice(1)}: ${val}`);
+    });
+  });
+  return lines.join('\n');
+}
+
+window._copyTextPlan=async()=>{
+  const text=buildTextPlan();
+  try{
+    await navigator.clipboard.writeText(text);
+    // Brief visual feedback
+    const btn=document.querySelectorAll('.export-card')[document.querySelectorAll('.export-card').length-1];
+    const orig=btn.querySelector('strong').textContent;
+    btn.querySelector('strong').textContent='✅ Copied!';
+    setTimeout(()=>btn.querySelector('strong').textContent=orig,2000);
+  } catch(e){alert('Could not copy. Please copy manually:\n\n'+text);}
+};
+
+window._nativeShare=async()=>{
+  const text=buildTextPlan();
+  try{await navigator.share({title:'My Annapurna Meal Plan',text});}
+  catch(e){}
+};
+
+window._downloadMonthImage=async()=>{
+  const y=2026,m=selectedMonth,color=MONTH_COLORS[m],grad=MONTH_GRADS[m];
+  const weeks=getWeeksInMonth(y,m);
+  const btn=document.querySelectorAll('.export-card')[0];
+  const origText=btn.querySelector('strong').textContent;
+  btn.querySelector('strong').textContent='⏳ Generating...';
+  btn.disabled=true;
+
+  // Build canvas
+  const W=800,PADDING=28,ROW_H=36,HEADER_H=80,WEEK_LABEL_H=34,DAY_H=28;
+  const totalRows=weeks.reduce((a,w)=>a+w.length,0);
+  const H=HEADER_H+weeks.length*(WEEK_LABEL_H+totalRows/weeks.length*DAY_H*MEALS.length+16)+80;
+
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=Math.max(H,600);
+  const ctx=canvas.getContext('2d');
+
+  // Background
+  const bgGrad=ctx.createLinearGradient(0,0,W,canvas.height);
+  bgGrad.addColorStop(0,'#FFF8EE'); bgGrad.addColorStop(1,'#FFE8C8');
+  ctx.fillStyle=bgGrad; ctx.fillRect(0,0,W,canvas.height);
+
+  // Header bar
+  const hGrad=ctx.createLinearGradient(0,0,W,0);
+  const [c1,c2]=grad.match(/#[0-9a-fA-F]{6}/g)||[color,color];
+  hGrad.addColorStop(0,c1); hGrad.addColorStop(1,c2);
+  ctx.fillStyle=hGrad;
+  ctx.beginPath(); ctx.roundRect(PADDING,PADDING,W-PADDING*2,56,14);
+  ctx.fill();
+  ctx.fillStyle='white';
+  ctx.font='bold 22px serif'; ctx.textAlign='center';
+  ctx.fillText('🍱 '+MONTHS[m]+' 2026 — Meal Plan', W/2, PADDING+36);
+
+  let y2=HEADER_H+16;
+  weeks.forEach((week,wi)=>{
+    // Week label
+    ctx.fillStyle=color+'22';
+    ctx.beginPath(); ctx.roundRect(PADDING,y2,W-PADDING*2,WEEK_LABEL_H,8); ctx.fill();
+    ctx.fillStyle=color; ctx.font='bold 13px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('Week '+(wi+1), PADDING+12, y2+22);
+    y2+=WEEK_LABEL_H+6;
+
+    week.forEach(d=>{
+      const dk=dateKey(d),fests=FESTIVALS[dk];
+      const dayLabel=DAYS_SHORT[d.getDay()]+' '+d.getDate()+(fests?' '+fests[0][0]:'');
+      ctx.fillStyle='white';
+      ctx.beginPath(); ctx.roundRect(PADDING,y2,W-PADDING*2,DAY_H*MEALS.length+8,10); ctx.fill();
+      ctx.fillStyle='#1A0F00'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(dayLabel, PADDING+10, y2+18);
+      MEALS.forEach((meal,mi)=>{
+        const val=getMealValue(y,m,d.getDate(),meal)||'—';
+        ctx.fillStyle='#9E7A56'; ctx.font='11px sans-serif';
+        ctx.fillText(MEAL_ICONS[meal]+' '+val, PADDING+10+(mi*((W-PADDING*2-20)/4)), y2+DAY_H+mi*0+18);
+      });
+      y2+=DAY_H*MEALS.length+12;
+    });
+    y2+=10;
+  });
+
+  // Footer
+  ctx.fillStyle='#C8A882'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Made with Annapurna 🍱', W/2, canvas.height-16);
+
+  // Download
+  canvas.toBlob(blob=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`annapurna-${MONTHS[m].toLowerCase()}-2026.png`;
+    a.click();
+    btn.querySelector('strong').textContent='✅ Downloaded!';
+    btn.disabled=false;
+    setTimeout(()=>btn.querySelector('strong').textContent=origText,2500);
+  });
+};
 
 window._handleShareAdd=async()=>{
   const ei=document.getElementById('share-email'),btn=document.querySelector('.btn-share-add'),msg=document.getElementById('share-msg');
