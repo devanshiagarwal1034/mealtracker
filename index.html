@@ -65,11 +65,13 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .festival-chip{background:rgba(255,255,255,0.2);border-radius:20px;padding:6px 12px;font-size:0.78rem;font-weight:500;display:inline-block;}
 .home-body{flex:1;padding:18px 16px;padding-bottom:80px;}
 .section-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-light);margin-bottom:10px;}
-.month-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
-.month-card{background:white;border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;box-shadow:0 1px 8px rgba(13,13,40,0.07);transition:all 0.15s;}
+.month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.month-card{background:white;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 2px 12px rgba(13,13,40,0.08);transition:all 0.18s;}
 .month-card:active{transform:scale(0.95);}
-.mc-name{font-size:0.72rem;font-weight:700;color:var(--text-mid);}
-.mc-dot{width:6px;height:6px;border-radius:50%;margin:5px auto 0;}
+.mc-bar{height:6px;width:100%;}
+.mc-body{padding:10px 6px 12px;}
+.mc-name{font-size:0.78rem;font-weight:700;color:var(--text);letter-spacing:0.2px;}
+.mc-dot{width:5px;height:5px;border-radius:50%;margin:5px auto 0;}
 .shared-list{display:flex;flex-direction:column;gap:8px;}
 .shared-card{display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;}
 .shared-card:active{transform:scale(0.98);}
@@ -78,8 +80,9 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .shared-name{font-weight:600;font-size:0.9rem;}
 .shared-email{font-size:0.72rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .shared-arrow{font-size:1.1rem;}
-.share-btn{width:100%;padding:14px;background:white;border:2px dashed #D0C4EE;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text-mid);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s;}
-.share-btn:active{background:#F3F0FA;}
+.share-btn{width:100%;padding:14px 18px;background:linear-gradient(135deg,#1565C0,#00695C);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;box-shadow:0 4px 16px rgba(21,101,192,0.25);}
+.share-btn:active{transform:scale(0.98);opacity:0.92;}
+.share-btn-icon{width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
 
 /* PLANNER */
 .planner-screen{min-height:100vh;display:flex;flex-direction:column;background:#F7F7FA;}
@@ -125,7 +128,7 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .share-screen{min-height:100vh;display:flex;flex-direction:column;background:#F7F7FA;}
 .share-body{flex:1;padding:16px;padding-bottom:90px;display:flex;flex-direction:column;gap:16px;}
 .share-info-card{display:flex;gap:12px;background:white;border-radius:14px;padding:14px;box-shadow:var(--shadow);align-items:flex-start;}
-.sic-icon{font-size:1.8rem;}
+.sic-icon{width:40px;height:40px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;color:#1565C0;flex-shrink:0;}
 .sic-text strong{display:block;font-size:0.9rem;margin-bottom:3px;}
 .sic-text p{font-size:0.78rem;color:var(--text-mid);line-height:1.4;}
 .share-input-row{display:flex;gap:8px;}
@@ -142,7 +145,7 @@ html,body{font-family:'DM Sans',sans-serif;background:#F7F7FA;color:var(--text);
 .export-section{display:flex;flex-direction:column;gap:10px;margin-bottom:4px;}
 .export-card{display:flex;align-items:center;gap:14px;background:white;border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;border:none;width:100%;font-family:'DM Sans',sans-serif;text-align:left;}
 .export-card:active{transform:scale(0.98);}
-.export-card-icon{font-size:1.6rem;flex-shrink:0;}
+.export-card-icon{width:42px;height:42px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:600;color:#1565C0;flex-shrink:0;}
 .export-card-text strong{display:block;font-size:0.88rem;font-weight:700;color:var(--text);}
 .export-card-text span{font-size:0.75rem;color:var(--text-mid);}
 .export-divider{display:flex;align-items:center;gap:10px;margin:6px 0;}
@@ -440,15 +443,15 @@ async function renderHome(){
     <div class="home-body">
       ${guestBanner}
       <div class="section-label" style="margin-bottom:10px">My Meal Plan — 2026</div>
-      <div class="month-grid">${MONTHS.map((m,i)=>`<div class="month-card" onclick="window._openMyPlanner(${i})" style="--mc:${MONTH_COLORS[i]}"><div class="mc-name">${m.slice(0,3)}</div><div class="mc-dot" style="background:${MONTH_COLORS[i]}"></div></div>`).join('')}</div>
+      <div class="month-grid">${MONTHS.map((m,i)=>`<div class="month-card" onclick="window._openMyPlanner(${i})"><div class="mc-bar" style="background:${MONTH_GRADS[i]}"></div><div class="mc-body"><div class="mc-name">${m.slice(0,3)}</div><div class="mc-dot" style="background:${MONTH_COLORS[i]}"></div></div></div>`).join('')}</div>
       ${sharedSection}
       <div class="section-label" style="margin-top:24px">Sharing</div>
-      <button class="share-btn" onclick="window._handleShareClick()"><span>📤</span> Share My Plan with Someone</button>
+      <button class="share-btn" onclick="window._handleShareClick()"><span class="share-btn-icon">✦</span><span>Share My Plan with Someone</span></button>
     </div>
     <div class="bottom-nav">
       <div class="nav-item active"><span>⌂</span><span>Home</span></div>
       <div class="nav-item" onclick="window._openMyPlanner(${today.getMonth()})"><span>📆</span><span>Planner</span></div>
-      <div class="nav-item" onclick="window._handleShareClick()"><span>↗</span><span>Share</span></div>
+      <div class="nav-item" onclick="window._handleShareClick()"><span>✦</span><span>Share</span></div>
     </div>
   </div>`;
 }
@@ -472,12 +475,12 @@ function showSignupModal(trigger){
   overlay.className='modal-overlay';
   overlay.id='signup-modal';
   overlay.innerHTML=`<div class="modal-sheet">
-    <div class="modal-icon">${isShare?'📤':'💾'}</div>
+    <div class="modal-icon">${isShare?'✦':'🔐'}</div>
     <div class="modal-title">${isShare?'Share Your Meal Plan':'Save Your Meal Plan'}</div>
     <div class="modal-sub">${isShare?'Create a free account to share your plan with family and friends.':'You\'ve been building your plan! Create a free account so your data is saved forever — not just on this device.'}</div>
     <div class="modal-benefits">
       <div class="modal-benefit"><span>☁️</span> Your meals saved securely to the cloud</div>
-      <div class="modal-benefit"><span>📤</span> Share your plan with family</div>
+      <div class="modal-benefit"><span>✦</span> Share your plan with family</div>
       <div class="modal-benefit"><span>📱</span> Access from any device</div>
       <div class="modal-benefit"><span>🆓</span> Completely free, no credit card</div>
     </div>
@@ -517,7 +520,7 @@ function renderPlanner(){
   <div class="planner-topbar" style="background:${grad}">
     <button class="icon-btn light" onclick="window._backToHome()" style="font-size:1.3rem;font-weight:300;">⌂</button>
     <div class="planner-title"><div class="pt-month">${MONTHS[m]} 2026</div>${isRO?`<div class="pt-shared">👁️ Viewing shared plan</div>`:''}</div>
-    ${!isRO?`<button class="icon-btn light" onclick="window._goTo('share')" style="font-size:0.85rem">📤</button>`:`<div style="width:48px"></div>`}
+    ${!isRO?`<button class="icon-btn light" onclick="window._goTo('share')" style="font-size:1rem;font-weight:500;">✦</button>`:`<div style="width:48px"></div>`}
   </div>
   <div class="month-strip" id="month-strip-scroll">${MONTHS.map((mn,i)=>`<div class="ms-item ${i===m?'active':''}" onclick="window._changeMonth(${i})" style="${i===m?`background:${color};color:white`:''}">${mn.slice(0,3)}</div>`).join('')}</div>
   <div class="week-tabs">${weeks.map((w,i)=>{const s=w[0],e=w[w.length-1],hf=w.some(d=>FESTIVALS[dateKey(d)]);return`<div class="wt-item ${i===selectedWeek?'active':''}" onclick="window._changeWeek(${i})" style="${i===selectedWeek?`border-bottom:2.5px solid ${color};color:${color}`:''}">W${i+1}${hf?`<span class="wt-dot" style="background:${color}"></span>`:''}<span class="wt-dates">${DAYS_SHORT[s.getDay()]} ${s.getDate()}–${DAYS_SHORT[e.getDay()]} ${e.getDate()}</span></div>`;}).join('')}</div>
@@ -535,7 +538,7 @@ function renderPlanner(){
   <div class="bottom-nav">
     <div class="nav-item" onclick="window._backToHome()"><span>⌂</span><span>Home</span></div>
     <div class="nav-item active"><span>📆</span><span>Planner</span></div>
-    <div class="nav-item" onclick="window._goTo('share')"><span>↗</span><span>Share</span></div>
+    <div class="nav-item" onclick="window._goTo('share')"><span>✦</span><span>Share</span></div>
   </div></div>`;
 }
 
@@ -648,7 +651,7 @@ async function renderShareView(){
   document.getElementById('app').innerHTML=`<div class="share-screen">
   <div class="planner-topbar" style="background:linear-gradient(135deg,#1565C0,#00695C)">
     <button class="icon-btn light" onclick="window._backToHome()" style="font-size:1.3rem;font-weight:300;">⌂</button>
-    <div class="planner-title"><div class="pt-month">Share My Plan</div></div>
+    <div class="planner-title"><div class="pt-month">✦ Share My Plan</div></div>
     <div style="width:48px"></div>
   </div>
   <div class="share-body">
@@ -656,15 +659,15 @@ async function renderShareView(){
     <div class="section-label">Share Without an Account</div>
     <div class="export-section">
       <button class="export-card" onclick="window._downloadMonthImage()">
-        <div class="export-card-icon">🖼️</div>
+        <div class="export-card-icon">⬇</div>
         <div class="export-card-text"><strong>Download This Week as Image</strong><span>Saves current week as a PNG — easy to send on WhatsApp</span></div>
       </button>
       ${canNativeShare?`<button class="export-card" onclick="window._nativeShare()">
-        <div class="export-card-icon">📱</div>
+        <div class="export-card-icon">✦</div>
         <div class="export-card-text"><strong>Share via WhatsApp / Messages</strong><span>Opens your phone's share sheet</span></div>
       </button>`:''}
       <button class="export-card" onclick="window._copyTextPlan()">
-        <div class="export-card-icon">📋</div>
+        <div class="export-card-icon">⎘</div>
         <div class="export-card-text"><strong>Copy as Text</strong><span>Copy this week's meals to paste anywhere</span></div>
       </button>
     </div>
@@ -680,7 +683,7 @@ async function renderShareView(){
   <div class="bottom-nav">
     <div class="nav-item" onclick="window._backToHome()"><span>🏠</span><span>Home</span></div>
     <div class="nav-item" onclick="window._openMyPlanner(${selectedMonth})"><span>📅</span><span>Planner</span></div>
-    <div class="nav-item active"><span>📤</span><span>Share</span></div>
+    <div class="nav-item active"><span>✦</span><span>Share</span></div>
   </div></div>`;
 }
 
