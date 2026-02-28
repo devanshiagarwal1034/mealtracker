@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Annapurna — 2026 Meal Tracker</title>
+<title>Sattva — 2026 Meal Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,700;9..144,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -259,7 +259,7 @@ let plannerData={},planOwnerId=null,unsubscribePlanner=null;
 let isGuest=false; // guest mode flag
 
 // ── GUEST MODE HELPERS ──
-const GUEST_KEY='annapurna_guest_data';
+const GUEST_KEY='sattva_guest_data';
 function guestGet(){try{return JSON.parse(localStorage.getItem(GUEST_KEY)||'{}');}catch{return{};}}
 function guestSet(data){try{localStorage.setItem(GUEST_KEY,JSON.stringify(data));}catch{}}
 function guestMealKey(y,m,d,meal){return `${y}_${m}_${d}_${meal}`;}
@@ -342,7 +342,7 @@ async function shareWithUser(email){
   if(!IS_CONFIGURED)throw new Error('Firebase not configured yet.');
   const q=query(collection(db,'users'),where('email','==',email.toLowerCase().trim()));
   const snap=await getDocs(q);
-  if(snap.empty)throw new Error('No Annapurna account found with that email.');
+  if(snap.empty)throw new Error('No Sattva account found with that email.');
   const tid=snap.docs[0].id;
   if(tid===currentUser.uid)throw new Error('You cannot share with yourself.');
   const tdata=snap.docs[0].data();
@@ -371,10 +371,10 @@ function renderCurrentView(){
 }
 
 // ── SPLASH ──
-function renderSplash(){return`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🪔</div><h1 class="logo-text">Annapurna</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your tracker with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Get Started</button><p class="splash-note">Free · No ads · Private</p></div></div>`;}
+function renderSplash(){return`<div class="splash"><div class="splash-bg"></div><div class="splash-content"><div class="splash-logo"><div class="logo-icon">🪔</div><h1 class="logo-text">Sattva</h1><p class="logo-tagline">Your 2026 Meal Tracker</p></div><div class="splash-features"><div class="feat-item"><span>🌾</span> Festival-aware Indian Calendar</div><div class="feat-item"><span>📱</span> Track meals week by week</div><div class="feat-item"><span>👁️</span> Share your tracker with family</div></div><button class="btn-primary full-width" onclick="window._goTo('auth')">Get Started</button><p class="splash-note">Free · No ads · Private</p></div></div>`;}
 
 // ── AUTH ──
-function renderAuth(mode){return`<div class="auth-screen"><div class="auth-header"><div class="logo-icon small">🪔</div><h2 class="auth-title">Annapurna</h2></div><div class="auth-card">${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase Setup Required</strong>Open this file in a text editor and paste your Firebase config where it says <code>YOUR_API_KEY</code> etc. <a href="https://console.firebase.google.com" target="_blank" style="color:#1A6BA0">→ Get your config at Firebase Console</a></div>`:''}
+function renderAuth(mode){return`<div class="auth-screen"><div class="auth-header"><div class="logo-icon small">🪔</div><h2 class="auth-title">Sattva</h2></div><div class="auth-card">${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase Setup Required</strong>Open this file in a text editor and paste your Firebase config where it says <code>YOUR_API_KEY</code> etc. <a href="https://console.firebase.google.com" target="_blank" style="color:#1A6BA0">→ Get your config at Firebase Console</a></div>`:''}
 <div class="auth-tabs"><button class="auth-tab ${mode==='login'?'active':''}" onclick="window._switchAuth('login')">Sign In</button><button class="auth-tab ${mode==='signup'?'active':''}" onclick="window._switchAuth('signup')">Create Account</button></div>
 <div id="auth-error" class="auth-error" style="display:none"></div>
 ${mode==='signup'?`<div class="form-group"><label>Your Name</label><input type="text" id="auth-name" placeholder="e.g. Priya Sharma"/></div>`:''}
@@ -711,7 +711,7 @@ async function renderShareView(){
 
     <div class="export-divider"><span>or invite to app</span></div>
 
-    <div class="share-info-card"><div class="sic-icon">👤</div><div class="sic-text"><strong>Invite by Annapurna account</strong><p>They can view your live tracker anytime — updates automatically.</p></div></div>
+    <div class="share-info-card"><div class="sic-icon">👤</div><div class="sic-text"><strong>Invite by Sattva account</strong><p>They can view your live tracker anytime — updates automatically.</p></div></div>
     ${!IS_CONFIGURED?`<div class="config-banner"><strong>⚠️ Firebase not configured</strong>Share feature requires Firebase setup.</div>`:''}
     <div class="form-group"><label>Invite by Email</label><div class="share-input-row"><input type="email" id="share-email" placeholder="friend@example.com"/><button class="btn-share-add" onclick="window._handleShareAdd()">Add</button></div><div id="share-msg" class="share-msg" style="display:none"></div></div>
     <div class="section-label">Currently Shared With</div>
@@ -731,7 +731,7 @@ function buildTextPlan(){
   const y=2026,m=selectedMonth;
   const weeks=getWeeksInMonth(y,m),week=weeks[selectedWeek]||weeks[0];
   const color=MONTH_COLORS[m];
-  let lines=[`🪔 Annapurna Meal Tracker — ${MONTHS[m]} 2026, Week ${selectedWeek+1}`,`${'─'.repeat(36)}`];
+  let lines=[`🪔 Sattva Meal Tracker — ${MONTHS[m]} 2026, Week ${selectedWeek+1}`,`${'─'.repeat(36)}`];
   week.forEach(d=>{
     const day=d.getDate(),dk=dateKey(d),fests=FESTIVALS[dk];
     lines.push(`\n${DAYS_SHORT[d.getDay()]} ${day}${fests?' '+fests.map(f=>f[0]+' '+f[1]).join(', '):''}`);
@@ -757,7 +757,7 @@ window._copyTextPlan=async()=>{
 
 window._nativeShare=async()=>{
   const text=buildTextPlan();
-  try{await navigator.share({title:'My Annapurna Meal Tracker 🪔',text});}
+  try{await navigator.share({title:'My Sattva Meal Tracker 🪔',text});}
   catch(e){}
 };
 
@@ -793,7 +793,7 @@ window._downloadMonthImage=async()=>{
   // Header text
   ctx.fillStyle='white'; ctx.textAlign='center';
   ctx.font='bold 20px serif';
-  ctx.fillText('🪔 Annapurna — '+MONTHS[m]+' 2026', W/2, PADDING+28);
+  ctx.fillText('🪔 Sattva — '+MONTHS[m]+' 2026', W/2, PADDING+28);
   ctx.font='13px sans-serif'; ctx.globalAlpha=0.85;
   const ws=week[0],we=week[week.length-1];
   ctx.fillText('Week '+(selectedWeek+1)+' · '+DAYS_SHORT[ws.getDay()]+' '+ws.getDate()+' – '+DAYS_SHORT[we.getDay()]+' '+we.getDate(), W/2, PADDING+50);
@@ -852,13 +852,13 @@ window._downloadMonthImage=async()=>{
 
   // Footer
   ctx.fillStyle='#C8A882'; ctx.font='11px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('Made with Annapurna 🪔  ·  annapurna.app', W/2, H-14);
+  ctx.fillText('Made with Sattva 🪔  ·  sattva.app', W/2, H-14);
 
   // Download
   canvas.toBlob(blob=>{
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=`annapurna-${MONTHS[m].toLowerCase()}-week${selectedWeek+1}.png`;
+    a.download=`sattva-${MONTHS[m].toLowerCase()}-week${selectedWeek+1}.png`;
     a.click();
     btn.querySelector('strong').textContent='✅ Downloaded!';
     btn.disabled=false;
